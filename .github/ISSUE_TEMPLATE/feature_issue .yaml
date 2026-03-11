@@ -1,0 +1,93 @@
+name: Feature
+description: Create a feature issue
+title: "feat: "
+labels:
+  - feature
+body:
+  - type: textarea
+    id: overview
+    attributes:
+      label: Feature Overview
+      description: Describe the feature at a high level
+      placeholder: |
+        Example:
+        Implement a user registration feature that allows users
+        to create an account using email and password.
+    validations:
+      required: true
+
+  - type: textarea
+    id: purpose
+    attributes:
+      label: Purpose
+      description: Why is this feature needed?
+      placeholder: |
+        - Enable user account creation
+        - Prepare authentication system
+
+  - type: textarea
+    id: requirements
+    attributes:
+      label: Functional Requirements
+      description: Describe inputs, behavior, and outputs
+      placeholder: |
+        Inputs:
+        - email
+        - password
+
+        Behavior:
+        - Validate input
+        - Check duplicate email
+        - Hash password
+        - Save to database
+
+        Output:
+        {
+          "message": "user created"
+        }
+
+  - type: textarea
+    id: api_design
+    attributes:
+      label: API Design
+      description: Describe endpoint, request, response
+      placeholder: |
+        Endpoint:
+        POST /users
+
+        Request:
+        {
+          "email": "test@example.com",
+          "password": "password"
+        }
+
+        Response:
+        {
+          "message": "user created"
+        }
+
+  - type: textarea
+    id: sub_issues
+    attributes:
+      label: Related Sub Issues
+      description: Link sub issues implementing this feature
+      placeholder: |
+        - [ ] Database implementation
+        - [ ] API implementation
+        - [ ] Frontend implementation
+        - [ ] Tests
+
+  - type: textarea
+    id: definition_of_done
+    attributes:
+      label: Definition of Done
+      placeholder: |
+        - Feature works end-to-end
+        - All sub issues completed
+        - Tests pass
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Additional design notes
