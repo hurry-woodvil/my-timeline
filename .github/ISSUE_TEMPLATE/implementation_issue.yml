@@ -1,0 +1,81 @@
+name: Implementation
+description: Create an implementation issue
+title: "impl: "
+labels:
+  - implementation
+
+body:
+  - type: textarea
+    id: overview
+    attributes:
+      label: Implementation Overview
+      description: Describe what needs to be implemented
+      placeholder: |
+        Example:
+        Implement password hashing using bcrypt
+        before saving the user to the database.
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Why is this implementation needed?
+      placeholder: |
+        Passwords must not be stored in plain text.
+        They should be hashed using a secure algorithm.
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Implementation Location
+      description: Where should this be implemented?
+      placeholder: |
+        backend/src/service/user_service.rs
+
+  - type: textarea
+    id: technical_details
+    attributes:
+      label: Technical Details
+      description: Technical approach or design notes
+      placeholder: |
+        Use bcrypt crate.
+
+        Example:
+
+        let hashed = bcrypt::hash(password, bcrypt::DEFAULT_COST)?;
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Implementation Steps
+      description: Concrete steps to implement
+      placeholder: |
+        - Add bcrypt dependency
+        - Hash password before DB insert
+        - Update register_user service
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Conditions for completion
+      placeholder: |
+        - [ ] Password is hashed
+        - [ ] No plaintext password stored
+        - [ ] Code compiles
+        - [ ] Tests pass
+
+  - type: input
+    id: related_task
+    attributes:
+      label: Related Task Issue
+      description: Link the parent task issue
+      placeholder: "#123"
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Additional notes
