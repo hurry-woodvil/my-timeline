@@ -18,11 +18,11 @@ pub async fn register_user(
 ) -> response::ApiResult<RegisterUserResponse> {
     let user = service::register_user(&state.db, payload).await?;
 
-    let token = auth::generate_jwt(&user, &state.jwt_secret)?;
+    let access_token = auth::generate_jwt(&user, &state.jwt_secret)?;
 
     Ok((
         StatusCode::CREATED,
-        response::ok("user created", RegisterUserResponse { token }),
+        response::ok("user created", RegisterUserResponse { access_token }),
     ))
 }
 
@@ -32,11 +32,11 @@ pub async fn login_user(
 ) -> response::ApiResult<LoginUserResponse> {
     let user = service::login_user(&state.db, payload).await?;
 
-    let token = auth::generate_jwt(&user, &state.jwt_secret)?;
+    let access_token = auth::generate_jwt(&user, &state.jwt_secret)?;
 
     Ok((
         StatusCode::OK,
-        response::ok("login successful", LoginUserResponse { token }),
+        response::ok("login successful", LoginUserResponse { access_token }),
     ))
 }
 

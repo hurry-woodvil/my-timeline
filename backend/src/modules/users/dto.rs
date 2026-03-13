@@ -8,7 +8,7 @@ pub struct RegisterUserRequest {
 
 #[derive(Debug, Serialize)]
 pub struct RegisterUserResponse {
-    pub token: String,
+    pub access_token: String,
 }
 
 #[derive(Debug, Deserialize)]
@@ -19,7 +19,7 @@ pub struct LoginUserRequest {
 
 #[derive(Debug, Serialize)]
 pub struct LoginUserResponse {
-    pub token: String,
+    pub access_token: String,
 }
 
 #[derive(Debug, Serialize)]
