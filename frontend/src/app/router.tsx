@@ -1,14 +1,28 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import SignInPage from '../pages/signin/SignInPage';
-import Home from '../pages/Home';
+import { SignInPage, GuestRoute, ProtectedRoute } from '../features/auth';
+import { TimelinePage } from '../features/timeline';
 
 export default function AppRouter() {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signin" element={<SignInPage />} />
+          <Route
+            path="/signin"
+            element={
+              <GuestRoute>
+                <SignInPage />
+              </GuestRoute>
+            }
+          />
+          <Route
+            path="/timeline"
+            element={
+              <ProtectedRoute>
+                <TimelinePage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </>
