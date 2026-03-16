@@ -3,6 +3,7 @@ description: Create a feature issue
 title: "[Feature] "
 labels:
   - feature
+assignees: hurrry-woodvil
 body:
   - type: textarea
     id: overview
