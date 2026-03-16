@@ -6,11 +6,7 @@ import {
 } from './api-request-type';
 
 export class ApiClient {
-  baseUrl: string;
-
-  constructor() {
-    this.baseUrl = 'https://example.com';
-  }
+  constructor(private readonly baseUrl: string) {}
 
   async request<TResponse, TBody = unknown, TQuery = unknown>(
     req: ApiRequest<TBody, TQuery>,
