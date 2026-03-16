@@ -1,63 +1,24 @@
 name: Task
-description: Create a task issue (sub issue)
-title: "task: "
+description: Issue for a work unit to complete a feature
+title: "[Task] "
 labels:
   - task
+assignees: hurry-woodvil
 body:
   - type: textarea
     id: overview
     attributes:
-      label: Task Overview
-      description: Describe the task to implement
-      placeholder: |
-        Example:
-        Create the users table in the database.
+      label: Overview
+      description: What this task will do
+      placeholder: e.g. Implement login API
     validations:
       required: true
 
   - type: textarea
-    id: scope
+    id: goal
     attributes:
-      label: Scope
-      description: What should be implemented in this task?
-      placeholder: |
-        - Create users table
-        - Add unique constraint to email
-        - Add timestamps
-
-  - type: textarea
-    id: implementation_details
-    attributes:
-      label: Implementation Details
-      description: Technical details if needed
-      placeholder: |
-        Example schema:
-
-        CREATE TABLE users (
-          id UUID PRIMARY KEY,
-          email TEXT UNIQUE NOT NULL,
-          password_hash TEXT NOT NULL,
-          created_at TIMESTAMP NOT NULL
-        );
-
-  - type: textarea
-    id: acceptance_criteria
-    attributes:
-      label: Acceptance Criteria
-      placeholder: |
-        - [ ] Table is created
-        - [ ] Email uniqueness enforced
-        - [ ] Migration works
-
-  - type: input
-    id: parent_issue
-    attributes:
-      label: Parent Feature Issue
-      description: Link the feature issue
-      placeholder: "#123"
-
-  - type: textarea
-    id: notes
-    attributes:
-      label: Notes
-      description: Additional implementation notes
+      label: Goal
+      description: The state when this task is completed
+      placeholder: e.g. Authenticate with email and password and return access / refresh tokens
+    validations:
+      required: true
