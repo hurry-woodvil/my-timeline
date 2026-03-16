@@ -1,23 +1,27 @@
-name: Task
-description: Issue for a work unit to complete a feature
-title: "[Task] "
+name: Implement
+description: Issue for implementation step within a task
+title: "[Implement] "
 labels:
-  - task
+  - implement
+assignees: hurry-woodvil
 body:
   - type: textarea
     id: overview
     attributes:
       label: Overview
-      description: What this task will do
-      placeholder: e.g. Implement login API
+      description: What will be implemented in this issue
+      placeholder: e.g. Add request / response types for login API
     validations:
       required: true
 
   - type: textarea
-    id: goal
+    id: plan
     attributes:
-      label: Goal
-      description: The state when this task is completed
-      placeholder: e.g. Authenticate with email and password and return access / refresh tokens
+      label: Plan
+      description: Implementation steps or checklist
+      value: |
+        - [ ]
+        - [ ]
+        - [ ]
     validations:
       required: true
