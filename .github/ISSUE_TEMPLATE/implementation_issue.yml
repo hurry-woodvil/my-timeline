@@ -3,7 +3,6 @@ description: Issue for a work unit to complete a feature
 title: "[Task] "
 labels:
   - task
-assignees: hurry-woodvil
 body:
   - type: textarea
     id: overview
