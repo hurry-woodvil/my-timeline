@@ -20,21 +20,19 @@ pub async fn run() {
         .max_connections(5)
         .connect(&database_url)
         .await
-        .expect(
-            "failed to
-            connect database",
-        );
+        .expect("failed to connect database");
 
     sqlx::migrate!("./migrations/")
         .run(&db)
         .await
         .expect("failed to run migrations");
 
-    let state = app_state::AppState { db, jwt_secret };
+    let auth_service = app_state::AuthService { jwt_secret };
+    let state = app_state::AppState { db, auth_service };
 
     let app = Router::new()
         .merge(routes::auth::router())
-        .merge(routes::users::router())
+        .merge(routes::users::router(state.clone()))
         .layer(CorsLayer::permissive())
         .with_state(state);
 

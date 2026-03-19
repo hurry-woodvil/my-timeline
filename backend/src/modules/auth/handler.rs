@@ -21,8 +21,7 @@ pub async fn signin(
 
     let user = service::signin(&state.db, payload).await?;
 
-    let access_token =
-        token::generate_access_token(&user.id.to_string(), &state.auth_service.jwt_secret)?;
+    let access_token = token::generate_access_token(&user, &state.auth_service.jwt_secret)?;
 
     let refresh_token = token::generate_refresh_token(&user.id.to_string(), 7)?;
 
@@ -44,8 +43,7 @@ pub async fn signup(
 
     let user = service::signup(&state.db, payload).await?;
 
-    let access_token =
-        token::generate_access_token(&user.id.to_string(), &state.auth_service.jwt_secret)?;
+    let access_token = token::generate_access_token(&user, &state.auth_service.jwt_secret)?;
 
     let refresh_token = token::generate_refresh_token(&user.id.to_string(), 7)?;
 
