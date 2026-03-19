@@ -1,12 +1,13 @@
-use anyhow::Context;
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 use chrono::{Duration, Utc};
 use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
 use rand::TryRngCore;
 use rand::rngs::OsRng;
 use sha2::{Digest, Sha256};
+use uuid::Uuid;
 
 use crate::common::error::AppError;
+use crate::modules::users::dto::NewRefreshToken;
 use crate::modules::users::model::{Claims, User};
 
 pub fn generate_jwt(user: &User, secret: &str) -> Result<String, AppError> {
@@ -42,26 +43,33 @@ pub fn verify_jwt(token: &str, secret: &str) -> Result<Claims, AppError> {
     Ok(token_data.claims)
 }
 
-#[derive(Debug, Clone)]
-pub struct RefreshTokenPair {
-    pub raw_token: String,
-    pub token_hash: String,
-}
-
-pub fn generate_refresh_token() -> anyhow::Result<RefreshTokenPair> {
+pub fn generate_refresh_token(user_id: &str, days: i64) -> Result<NewRefreshToken, AppError> {
     let mut bytes = [0u8; 32];
     OsRng
         .try_fill_bytes(&mut bytes)
-        .context("failed to generate secure random bytes")?;
+        .map_err(|_| AppError::Internal("failed to generate secure random bytes".to_string()))?;
 
     let raw_token = URL_SAFE_NO_PAD.encode(bytes);
 
-    let mut hasher = Sha256::new();
-    hasher.update(raw_token.as_bytes());
-    let token_hash = format!("{:x}", hasher.finalize());
+    let token_hash = hash_refresh_token(&raw_token);
 
-    Ok(RefreshTokenPair {
+    let now = Utc::now().timestamp();
+    let expires_at = (Utc::now() + Duration::days(days)).timestamp();
+
+    Ok(NewRefreshToken {
+        id: Uuid::new_v4().to_string(),
         raw_token,
         token_hash,
+        user_id: user_id.to_string(),
+        expires_at,
+        created_at: now,
     })
+}
+
+fn hash_refresh_token(raw_token: &str) -> String {
+    let mut hasher = Sha256::new();
+
+    hasher.update(raw_token.as_bytes());
+
+    format!("{:x}", hasher.finalize())
 }

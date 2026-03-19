@@ -1,4 +1,5 @@
 use axum::{Json, http::StatusCode};
+use axum_extra::extract::CookieJar;
 use serde::Serialize;
 
 use crate::common::error::AppError;
@@ -16,6 +17,7 @@ pub struct MessageResponse {
 }
 
 pub type ApiResult<T> = Result<(StatusCode, Json<ApiResponse<T>>), AppError>;
+pub type ApiCookieResult<T> = Result<(StatusCode, CookieJar, Json<ApiResponse<T>>), AppError>;
 
 pub fn ok<T: Serialize>(msg: &str, data: T) -> Json<ApiResponse<T>> {
     Json(ApiResponse {

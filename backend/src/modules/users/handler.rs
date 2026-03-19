@@ -1,4 +1,5 @@
 use axum::{Json, extract::State, http::StatusCode};
+use axum_extra::extract::CookieJar;
 
 use crate::{
     app_state::AppState,
@@ -28,14 +29,20 @@ pub async fn register_user(
 
 pub async fn login_user(
     State(state): State<AppState>,
+    jar: CookieJar,
     Json(payload): Json<LoginUserRequest>,
-) -> response::ApiResult<LoginUserResponse> {
+) -> response::ApiCookieResult<LoginUserResponse> {
     let user = service::login_user(&state.db, payload).await?;
 
     let access_token = auth::generate_jwt(&user, &state.jwt_secret)?;
 
+    let refresh_token = auth::generate_refresh_token(&user.email, 7)?;
+
+    let cookie_jar = service::save_refresh_token(&state.db, jar, &refresh_token).await?;
+
     Ok((
         StatusCode::OK,
+        cookie_jar,
         response::ok("login successful", LoginUserResponse { access_token }),
     ))
 }

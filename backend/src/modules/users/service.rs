@@ -2,15 +2,20 @@ use argon2::{
     Argon2,
     password_hash::{PasswordHash, PasswordHasher, PasswordVerifier, SaltString, rand_core::OsRng},
 };
+use axum_extra::extract::{
+    CookieJar,
+    cookie::{Cookie, SameSite},
+};
 use sqlx::SqlitePool;
+use time::Duration;
 use uuid::Uuid;
 
-use crate::common::error::AppError;
 use crate::modules::users::{
     dto::{LoginUserRequest, RegisterUserRequest},
     model::{Claims, User},
     repository,
 };
+use crate::{common::error::AppError, modules::users::dto::NewRefreshToken};
 
 pub async fn register_user(
     db: &SqlitePool,
@@ -98,4 +103,22 @@ fn verify_password(password: &str, password_hash: &str) -> Result<(), AppError> 
     Argon2::default()
         .verify_password(password.as_bytes(), &parsed_hash)
         .map_err(|_| AppError::Unauthorized("invalid email or password".to_string()))
+}
+
+pub async fn save_refresh_token(
+    db: &SqlitePool,
+    jar: CookieJar,
+    refresh_token: &NewRefreshToken,
+) -> Result<CookieJar, AppError> {
+    repository::insert_refresh_token(db, refresh_token).await?;
+
+    let cookie = Cookie::build(("refresh_token", refresh_token.raw_token.to_string()))
+        .http_only(true)
+        .secure(true)
+        .same_site(SameSite::Lax)
+        .path("/")
+        .max_age(Duration::days(7))
+        .build();
+
+    Ok(jar.add(cookie))
 }

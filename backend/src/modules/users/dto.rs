@@ -22,6 +22,16 @@ pub struct LoginUserResponse {
     pub access_token: String,
 }
 
+#[derive(Debug, Clone)]
+pub struct NewRefreshToken {
+    pub id: String,
+    pub raw_token: String,
+    pub token_hash: String,
+    pub user_id: String,
+    pub expires_at: i64,
+    pub created_at: i64,
+}
+
 #[derive(Debug, Serialize)]
 pub struct MeResponse {
     pub user: UserResponse,
