@@ -4,6 +4,7 @@ pub mod token {
     use jsonwebtoken::{Algorithm, DecodingKey, EncodingKey, Header, Validation, decode, encode};
     use rand::{TryRngCore, rngs::OsRng};
     use sha2::{Digest, Sha256};
+    use sqlx::SqlitePool;
     use uuid::Uuid;
 
     use crate::{
