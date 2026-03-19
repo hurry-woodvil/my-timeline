@@ -33,6 +33,7 @@ pub async fn run() {
     let state = app_state::AppState { db, jwt_secret };
 
     let app = Router::new()
+        .merge(routes::auth::router())
         .merge(routes::users::router())
         .layer(CorsLayer::permissive())
         .with_state(state);

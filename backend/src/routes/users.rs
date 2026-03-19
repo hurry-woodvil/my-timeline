@@ -1,13 +1,11 @@
-use axum::{
-    Router,
-    routing::{get, post},
-};
+use axum::{Router, routing::get};
 
 use crate::{app_state::AppState, modules::users::handler};
 
 pub fn router() -> Router<AppState> {
-    Router::new()
-        .route("/users/register", post(handler::register_user))
-        .route("/users/login", post(handler::login_user))
-        .route("/users/me", get(handler::me))
+    let base_path = "/users";
+
+    let me_path = format!("{}/me", base_path);
+
+    Router::new().route(&me_path, get(handler::me))
 }

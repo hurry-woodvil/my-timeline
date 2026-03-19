@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::{
     app_state::AppState,
-    common::{auth, error::AppError},
+    common::{auth::service::token, error::AppError},
     modules::users::service,
 };
 
@@ -42,9 +42,9 @@ where
             .strip_prefix("Bearer ")
             .ok_or_else(|| AppError::Unauthorized("invalid authorization".to_string()))?;
 
-        let claims = auth::verify_jwt(token, &app_state.jwt_secret)?;
+        let claims = token::verify_access_token(token, &app_state.jwt_secret)?;
 
-        let user = service::get_me(&app_state.db, &claims).await?;
+        let user = service::get_me(&app_state.db, &claims.sub).await?;
 
         Ok(CurrentUser {
             id: user.id,
