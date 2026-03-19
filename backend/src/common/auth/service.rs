@@ -7,16 +7,22 @@ pub mod token {
     use uuid::Uuid;
 
     use crate::{
-        common::{auth::model::Claims, error::AppError, repository::user::User},
+        common::{
+            auth::model::Claims,
+            error::AppError,
+            repository::refresh_tokens::{
+                RefreshToken, delete_by_hash, select_refresh_token_by_hash,
+            },
+        },
         modules::auth::model::NewRefreshToken,
     };
 
-    pub fn generate_access_token(user: &User, secret: &str) -> Result<String, AppError> {
+    pub fn generate_access_token(user_id: &str, secret: &str) -> Result<String, AppError> {
         let now = Utc::now();
         let exp = now + chrono::Duration::minutes(15);
 
         let claims = Claims {
-            sub: user.id.to_string(),
+            sub: user_id.to_string(),
             iat: now.timestamp() as usize,
             exp: exp.timestamp() as usize,
         };
@@ -72,5 +78,25 @@ pub mod token {
         .map_err(|_| AppError::Unauthorized("invalid or expired token".to_string()))?;
 
         Ok(token_data.claims)
+    }
+
+    pub async fn verify_refresh_token(
+        db: &SqlitePool,
+        raw_token: &str,
+    ) -> Result<RefreshToken, AppError> {
+        let token_hash = hash_refresh_token(raw_token);
+
+        let refresh_token = select_refresh_token_by_hash(db, &token_hash)
+            .await?
+            .ok_or_else(|| AppError::Unauthorized("invalid refresh token".to_string()))?;
+
+        let now = Utc::now().timestamp();
+
+        if refresh_token.expires_at < now {
+            delete_by_hash(db, &token_hash).await?;
+            return Err(AppError::Unauthorized("refresh token expired".to_string()));
+        }
+
+        Ok(refresh_token)
     }
 }

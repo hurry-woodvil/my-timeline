@@ -21,3 +21,8 @@ pub struct SignupRequest {
 pub struct SignupResponse {
     pub access_token: String,
 }
+
+#[derive(Debug, Serialize)]
+pub struct RefreshResponse {
+    pub access_token: String,
+}

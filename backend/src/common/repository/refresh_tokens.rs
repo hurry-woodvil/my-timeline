@@ -37,3 +37,20 @@ pub async fn insert_refresh_token(db: &SqlitePool, token: &RefreshToken) -> Resu
         Err(e) => Err(AppError::Database(e)),
     }
 }
+
+pub async fn delete_by_hash(db: &SqlitePool, token_hash: &str) -> Result<(), AppError> {
+    let result = sqlx::query(
+        r#"
+        DELETE FROM refresh_tokens
+        WHRER token_hash = ?
+        "#,
+    )
+    .bind(token_hash)
+    .execute(db)
+    .await;
+
+    match result {
+        Ok(_) => Ok(()),
+        Err(e) => Err(AppError::Database(e)),
+    }
+}
