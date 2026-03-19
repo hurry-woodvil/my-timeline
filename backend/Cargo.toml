@@ -18,3 +18,7 @@ dotenvy = "0.15"
 thiserror = "2"
 jsonwebtoken = { version = "10", features = ["rust_crypto"] }
 chrono = { version = "0.4", features = ["serde"] }
+rand = "0.9"
+sha2 = "0.10"
+base64 = "0.22"
+anyhow = "1.0"
