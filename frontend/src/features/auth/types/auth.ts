@@ -1,11 +1,30 @@
+export type Response<T> = {
+  success: boolean;
+  message: string;
+  data: T;
+};
+
+export type AuthToken = {
+  access_token: string;
+};
+
 export type SignInRequest = {
   email: string;
   password: string;
 };
 
-export type SignInResponse = {
-  accessToken: string;
+export type SignInResponseData = AuthToken & {};
+
+export type SignUpRequest = {
+  email: string;
+  password: string;
 };
+
+export type SignUpResponseData = AuthToken & {};
+
+export type RefreshRequest = {};
+
+export type RefreshResponseData = AuthToken & {};
 
 export type AuthState = {
   isAuthenticated: boolean;

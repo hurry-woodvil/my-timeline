@@ -6,13 +6,13 @@ import {
   useContext,
   useEffect,
 } from 'react';
-import { AuthState, SignInResponse } from '../types/auth';
+import { AuthState, AuthToken } from '../types/auth';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 
 type AuthContextValue = AuthState & {
   isInitializing: boolean;
-  login: (payload: SignInResponse) => void;
+  login: (payload: AuthToken) => void;
   logout: () => void;
 };
 
@@ -34,10 +34,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsInitializing(false);
   }, []);
 
-  function login(payload: SignInResponse) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, payload.accessToken);
+  function login(payload: AuthToken) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, payload.access_token);
 
-    setAccessToken(payload.accessToken);
+    setAccessToken(payload.access_token);
   }
 
   function logout() {
