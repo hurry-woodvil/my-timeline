@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signin } from '../services/authService';
+import { signin } from '../services/auth-service';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 

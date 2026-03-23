@@ -1,5 +1,5 @@
 import { ChangeEvent, useState } from 'react';
-import { useSignIn } from '../hooks/useSignIn';
+import { useSignIn } from '../hooks/use-sign-in';
 
 type InputChangeEvent = ChangeEvent<HTMLInputElement, HTMLInputElement>;
 
