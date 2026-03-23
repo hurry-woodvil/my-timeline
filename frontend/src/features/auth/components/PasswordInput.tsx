@@ -1,12 +1,18 @@
-type PasswordInputProps = {
-  password: string;
-  setPassword: (value: string) => void;
-};
+import { ChangeEvent, useState } from 'react';
+import { useSignIn } from '../hooks/useSignIn';
 
-export default function PasswordInput({
-  password,
-  setPassword,
-}: PasswordInputProps) {
+type InputChangeEvent = ChangeEvent<HTMLInputElement, HTMLInputElement>;
+
+export default function PasswordInput() {
+  const { setPassword } = useSignIn();
+  const [passwd, setPasswd] = useState('');
+
+  const changeHandler = (e: InputChangeEvent) => {
+    const val = e.target.value;
+    setPasswd(val);
+    setPassword(val);
+  };
+
   return (
     <div className="mb-4">
       <label htmlFor="password" className="block text-sm">
@@ -16,8 +22,8 @@ export default function PasswordInput({
         id="password"
         type="password"
         className="w-full border p-2"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        value={passwd}
+        onChange={changeHandler}
         autoComplete="current-password"
       />
     </div>
