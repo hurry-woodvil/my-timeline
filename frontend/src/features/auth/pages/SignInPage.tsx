@@ -1,8 +1,7 @@
 import { useSignIn } from '../hooks/useSignIn';
-import EmailInput from '../components/EmailInput';
-import PasswordInput from '../components/PasswordInput';
-import ErrorMessage from '../components/ErrorMessage';
-import SubmitButton from '../components/SubmitButton';
+import SignInForm from '../components/SignInForm';
+import { useState } from 'react';
+import SingUpForm from '../components/SignUpForm';
 
 export default function SignInPage() {
   const {
@@ -14,17 +13,29 @@ export default function SignInPage() {
     setPassword,
     handleSubmit,
   } = useSignIn();
+  const [isSignIn, setIsSignIn] = useState(true);
+
+  const onClickHandler = () => {
+    setIsSignIn(!isSignIn);
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-96 rounded border p-6 shadow">
-        <h1 className="mb-4 text-xl font-bold">Sign In</h1>
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <EmailInput email={email} setEmail={setEmail} />
-          <PasswordInput password={password} setPassword={setPassword} />
-          <ErrorMessage errorMessage={errorMessage} />
-          <SubmitButton isSubmitting={isSubmitting} />
-        </form>
+        {isSignIn ? (
+          <SignInForm
+            email={email}
+            password={password}
+            isSubmitting={isSubmitting}
+            errorMessage={errorMessage}
+            setEmail={setEmail}
+            setPassword={setPassword}
+            handleSubmit={handleSubmit}
+          />
+        ) : (
+          <SingUpForm />
+        )}
+        <button onClick={onClickHandler}>Sing Up</button>
       </div>
     </div>
   );
