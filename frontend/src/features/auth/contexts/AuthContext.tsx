@@ -7,6 +7,7 @@ import {
   useEffect,
 } from 'react';
 import { AuthState, AuthToken } from '../types/auth';
+import { signout as signoutSevice } from '../services/auth-service';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 
@@ -47,7 +48,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAccessToken(payload.access_token);
   }
 
-  function signout() {
+  async function signout() {
+    const body = await signoutSevice();
+
+    console.log(body.message);
+
     localStorage.removeItem(ACCESS_TOKEN_KEY);
 
     setAccessToken(null);

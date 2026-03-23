@@ -10,6 +10,8 @@ import {
   SignInResponseData,
   SignUpRequest,
   SignUpResponseData,
+  SignOutRequest,
+  SignOutResponseData,
   RefreshRequest,
   RefreshResponseData,
 } from '../types/auth';
@@ -42,6 +44,22 @@ export async function callSignUpApi(
 
   const apiClient = new ApiClient(env.apiBaseUrl);
   const response = await apiClient.request<SignUpResponseData>(request);
+
+  return response;
+}
+
+export async function callSignoutApi(
+  payload: SignOutRequest,
+): Promise<ApiResponse<SignOutResponseData>> {
+  const request: GetApiRequest<SignOutRequest> = {
+    method: 'GET',
+    path: '/auth/signout',
+    withAuth: false,
+    query: payload,
+  };
+
+  const apiClient = new ApiClient(env.apiBaseUrl);
+  const response = await apiClient.request<SignOutResponseData>(request);
 
   return response;
 }

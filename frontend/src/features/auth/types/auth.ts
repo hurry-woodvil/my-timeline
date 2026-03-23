@@ -22,6 +22,10 @@ export type SignUpRequest = {
 
 export type SignUpResponseData = AuthToken & {};
 
+export type SignOutRequest = {};
+
+export type SignOutResponseData = {};
+
 export type RefreshRequest = {};
 
 export type RefreshResponseData = AuthToken & {};

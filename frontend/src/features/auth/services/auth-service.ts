@@ -6,8 +6,15 @@ import {
   SignUpResponseData,
   RefreshRequest,
   RefreshResponseData,
+  SignOutResponseData,
+  SignOutRequest,
 } from '../types/auth';
-import { callRefreshApi, callSignInApi, callSignUpApi } from './api';
+import {
+  callRefreshApi,
+  callSignInApi,
+  callSignoutApi,
+  callSignUpApi,
+} from './api';
 
 export async function signin(
   email: string,
@@ -33,6 +40,14 @@ export async function signup(
   };
 
   const body = await callSignUpApi(payload);
+
+  return body;
+}
+
+export async function signout(): Promise<ApiResponse<SignOutResponseData>> {
+  const payload: SignOutRequest = {};
+
+  const body = await callSignoutApi(payload);
 
   return body;
 }
