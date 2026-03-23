@@ -23,6 +23,9 @@ pub struct SignupResponse {
 }
 
 #[derive(Debug, Serialize)]
+pub struct SignoutResponse {}
+
+#[derive(Debug, Serialize)]
 pub struct RefreshResponse {
     pub access_token: String,
 }

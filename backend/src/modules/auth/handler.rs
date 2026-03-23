@@ -7,7 +7,10 @@ use crate::{
         auth::service::token, error::AppError, repository::user::select_user_by_id, response,
     },
     modules::auth::{
-        dto::{RefreshResponse, SigninRequest, SigninResponse, SignupRequest, SignupResponse},
+        dto::{
+            RefreshResponse, SigninRequest, SigninResponse, SignoutResponse, SignupRequest,
+            SignupResponse,
+        },
         service,
     },
 };
@@ -55,6 +58,22 @@ pub async fn signup(
         StatusCode::CREATED,
         jar,
         response::ok("user created", SignupResponse { access_token }),
+    ))
+}
+
+pub async fn signout(
+    State(state): State<AppState>,
+    cookie_jar: CookieJar,
+) -> response::ApiCookieResult<SignoutResponse> {
+    if let Some(refresh_token) = cookie_jar.get("refresh_token") {
+        let raw_token = refresh_token.value().to_string();
+        let token_hash = token::hash_refresh_token(&raw_token);
+        service::signout(&state.db, &token_hash).await?;
+    }
+
+    Ok((
+        StatusCode::OK,
+        response::ok("user signout", SignoutResponse {}),
     ))
 }
 
