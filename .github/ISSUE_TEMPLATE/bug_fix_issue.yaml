@@ -2,7 +2,6 @@ name: Bug
 description: Create a bug issue
 labels:
   - bugs
-type: Bug
 title: "[Bug] "
 assignees: hurrry-woodvil
 body:
