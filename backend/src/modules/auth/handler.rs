@@ -1,5 +1,9 @@
 use axum::{Json, extract::State, http::StatusCode};
-use axum_extra::extract::CookieJar;
+use axum_extra::extract::{
+    CookieJar,
+    cookie::{Cookie, SameSite},
+};
+use time::Duration;
 
 use crate::{
     app_state::AppState,
@@ -71,8 +75,19 @@ pub async fn signout(
         service::signout(&state.db, &token_hash).await?;
     }
 
+    let remove_cookie = Cookie::build(("refresh_token", "".to_string()))
+        .secure(true)
+        .http_only(true)
+        .same_site(SameSite::Lax)
+        .path("/")
+        .max_age(Duration::seconds(0))
+        .build();
+
+    let jar = cookie_jar.remove(remove_cookie);
+
     Ok((
         StatusCode::OK,
+        jar,
         response::ok("user signout", SignoutResponse {}),
     ))
 }
