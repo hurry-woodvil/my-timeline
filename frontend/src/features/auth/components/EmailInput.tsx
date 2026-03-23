@@ -1,15 +1,13 @@
-import { ChangeEvent, useState } from 'react';
-import { useSignIn } from '../hooks/use-sign-in';
+type ChangeEvent = React.ChangeEvent<HTMLInputElement, HTMLInputElement>;
 
-type InputChangeEvent = ChangeEvent<HTMLInputElement, HTMLInputElement>;
+type EmailInputProps = {
+  email: string;
+  setEmail: (email: React.SetStateAction<string>) => void;
+};
 
-export default function EmailInput() {
-  const { setEmail } = useSignIn();
-  const [inputEmail, setInputEmail] = useState('');
-
-  const changeHandler = (e: InputChangeEvent) => {
+export default function EmailInput({ email, setEmail }: EmailInputProps) {
+  const changeHandler = (e: ChangeEvent) => {
     const val = e.target.value;
-    setInputEmail(val);
     setEmail(val);
   };
 
@@ -22,7 +20,7 @@ export default function EmailInput() {
         id="email"
         type="email"
         className="w-full border p-2"
-        value={inputEmail}
+        value={email}
         onChange={changeHandler}
         autoComplete="email"
       />

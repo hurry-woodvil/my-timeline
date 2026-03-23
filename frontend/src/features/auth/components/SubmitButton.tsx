@@ -1,8 +1,8 @@
-import { useSignIn } from '../hooks/use-sign-in';
+type SubmitButtonProps = {
+  isSubmitting: boolean;
+};
 
-export default function SubmitButton() {
-  const { isSubmitting } = useSignIn();
-
+export default function SubmitButton({ isSubmitting }: SubmitButtonProps) {
   return (
     <button
       type="submit"

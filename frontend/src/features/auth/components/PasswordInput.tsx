@@ -1,16 +1,17 @@
-import { ChangeEvent, useState } from 'react';
-import { useSignIn } from '../hooks/use-sign-in';
+type ChangeEvent = React.ChangeEvent<HTMLInputElement, HTMLInputElement>;
 
-type InputChangeEvent = ChangeEvent<HTMLInputElement, HTMLInputElement>;
+type PasswordInputProps = {
+  password: string;
+  setPassowrd: (password: React.SetStateAction<string>) => void;
+};
 
-export default function PasswordInput() {
-  const { setPassword } = useSignIn();
-  const [passwd, setPasswd] = useState('');
-
-  const changeHandler = (e: InputChangeEvent) => {
+export default function PasswordInput({
+  password,
+  setPassowrd,
+}: PasswordInputProps) {
+  const changeHandler = (e: ChangeEvent) => {
     const val = e.target.value;
-    setPasswd(val);
-    setPassword(val);
+    setPassowrd(val);
   };
 
   return (
@@ -22,7 +23,7 @@ export default function PasswordInput() {
         id="password"
         type="password"
         className="w-full border p-2"
-        value={passwd}
+        value={password}
         onChange={changeHandler}
         autoComplete="current-password"
       />
