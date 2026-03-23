@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { signin } from '../services/auth-service';
+import { signin as signinService } from '../services/auth-service';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,7 +18,7 @@ export function useSignIn() {
     setIsSubmitting(true);
 
     try {
-      const result = await signin(email, password);
+      const result = await signinService(email, password);
       if (!result) {
         console.log('signin failed');
       }
