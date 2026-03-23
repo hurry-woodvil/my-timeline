@@ -12,8 +12,8 @@ const ACCESS_TOKEN_KEY = 'access_token';
 
 type AuthContextValue = AuthState & {
   isInitializing: boolean;
-  logout: () => void;
   signin: (payload: AuthToken) => void;
+  signout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -40,7 +40,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setAccessToken(payload.access_token);
   }
 
-  function logout() {
+  function signout() {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
 
     setAccessToken(null);
@@ -51,8 +51,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated,
       accessToken,
       isInitializing,
-      logout,
       signin,
+      signout,
     }),
     [isAuthenticated, accessToken, isInitializing],
   );
