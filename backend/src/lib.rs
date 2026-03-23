@@ -7,17 +7,22 @@ mod routes;
 use axum::{
     Router,
     http::{
-        HeaderValue,
+        HeaderValue, Method,
         header::{AUTHORIZATION, CONTENT_TYPE},
     },
 };
 use axum_server::tls_rustls::RustlsConfig;
 use dotenvy::dotenv;
+use rustls::crypto::aws_lc_rs;
 use sqlx::sqlite::SqlitePoolOptions;
 use std::{env, net::SocketAddr};
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
 pub async fn run() {
+    aws_lc_rs::default_provider()
+        .install_default()
+        .expect("failed to install rustls crypto provider");
+
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
@@ -44,7 +49,14 @@ pub async fn run() {
                 .expect("invalid frontend origin"),
         ))
         .allow_credentials(true)
-        .allow_methods([])
+        .allow_methods([
+            Method::GET,
+            Method::POST,
+            Method::PUT,
+            Method::PATCH,
+            Method::DELETE,
+            Method::OPTIONS,
+        ])
         .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
 
     let app = Router::new()
@@ -54,7 +66,7 @@ pub async fn run() {
         .with_state(state);
 
     let tls_config =
-        RustlsConfig::from_pem_file("certs/localhost+2.pem", "certs/localhost+2-key.pem")
+        RustlsConfig::from_pem_file("../certs/localhost+2.pem", "../certs/localhost+2-key.pem")
             .await
             .expect("failed to load TLS certificate files");
 
