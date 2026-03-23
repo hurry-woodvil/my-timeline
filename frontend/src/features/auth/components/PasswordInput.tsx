@@ -1,12 +1,19 @@
+type ChangeEvent = React.ChangeEvent<HTMLInputElement, HTMLInputElement>;
+
 type PasswordInputProps = {
   password: string;
-  setPassword: (value: string) => void;
+  setPassowrd: (password: React.SetStateAction<string>) => void;
 };
 
 export default function PasswordInput({
   password,
-  setPassword,
+  setPassowrd,
 }: PasswordInputProps) {
+  const changeHandler = (e: ChangeEvent) => {
+    const val = e.target.value;
+    setPassowrd(val);
+  };
+
   return (
     <div className="mb-4">
       <label htmlFor="password" className="block text-sm">
@@ -17,7 +24,7 @@ export default function PasswordInput({
         type="password"
         className="w-full border p-2"
         value={password}
-        onChange={(e) => setPassword(e.target.value)}
+        onChange={changeHandler}
         autoComplete="current-password"
       />
     </div>

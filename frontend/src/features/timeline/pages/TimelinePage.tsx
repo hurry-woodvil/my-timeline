@@ -1,7 +1,7 @@
 import { useAuth } from '../../auth/contexts/AuthContext';
 
 export default function TimelinePage() {
-  const { logout } = useAuth();
+  const { signout } = useAuth();
 
   return (
     <main className="mx-auto max-w-3xl p-6">
@@ -14,7 +14,7 @@ export default function TimelinePage() {
         </div>
         <button
           className="rounded-md border border-gray-300 px-4 py-2"
-          onClick={logout}
+          onClick={signout}
         >
           Sign Out
         </button>

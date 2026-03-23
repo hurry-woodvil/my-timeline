@@ -6,14 +6,15 @@ import {
   useContext,
   useEffect,
 } from 'react';
-import { AuthState, SignInResponse } from '../types/auth';
+import { AuthState, AuthToken } from '../types/auth';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 
 type AuthContextValue = AuthState & {
   isInitializing: boolean;
-  login: (payload: SignInResponse) => void;
-  logout: () => void;
+  signin: (payload: AuthToken) => void;
+  signup: (payload: AuthToken) => void;
+  signout: () => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -34,13 +35,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsInitializing(false);
   }, []);
 
-  function login(payload: SignInResponse) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, payload.accessToken);
+  function signin(payload: AuthToken) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, payload.access_token);
 
-    setAccessToken(payload.accessToken);
+    setAccessToken(payload.access_token);
   }
 
-  function logout() {
+  function signup(payload: AuthToken) {
+    localStorage.setItem(ACCESS_TOKEN_KEY, payload.access_token);
+
+    setAccessToken(payload.access_token);
+  }
+
+  function signout() {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
 
     setAccessToken(null);
@@ -51,8 +58,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated,
       accessToken,
       isInitializing,
-      login,
-      logout,
+      signin,
+      signup,
+      signout,
     }),
     [isAuthenticated, accessToken, isInitializing],
   );

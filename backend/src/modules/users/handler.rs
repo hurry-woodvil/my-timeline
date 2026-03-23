@@ -1,56 +1,25 @@
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{extract::State, http::StatusCode};
 
 use crate::{
     app_state::AppState,
-    common::auth,
     common::response,
     extractors::current_user::CurrentUser,
-    modules::users::dto::{
-        LoginUserRequest, LoginUserResponse, MeResponse, RegisterUserRequest, RegisterUserResponse,
-        UserResponse,
+    modules::users::{
+        dto::{MeResponse, User},
+        service,
     },
-    modules::users::service,
 };
 
-pub async fn register_user(
+pub async fn me(
     State(state): State<AppState>,
-    Json(payload): Json<RegisterUserRequest>,
-) -> response::ApiResult<RegisterUserResponse> {
-    let user = service::register_user(&state.db, payload).await?;
+    current_user: CurrentUser,
+) -> response::ApiResult<MeResponse> {
+    let user = service::get_me(&state.db, &current_user.id).await?;
 
-    let access_token = auth::generate_jwt(&user, &state.jwt_secret)?;
+    let user = User {
+        id: user.id.to_string(),
+        email: user.email,
+    };
 
-    Ok((
-        StatusCode::CREATED,
-        response::ok("user created", RegisterUserResponse { access_token }),
-    ))
-}
-
-pub async fn login_user(
-    State(state): State<AppState>,
-    Json(payload): Json<LoginUserRequest>,
-) -> response::ApiResult<LoginUserResponse> {
-    let user = service::login_user(&state.db, payload).await?;
-
-    let access_token = auth::generate_jwt(&user, &state.jwt_secret)?;
-
-    Ok((
-        StatusCode::OK,
-        response::ok("login successful", LoginUserResponse { access_token }),
-    ))
-}
-
-pub async fn me(current_user: CurrentUser) -> response::ApiResult<MeResponse> {
-    Ok((
-        StatusCode::OK,
-        response::ok(
-            "you are",
-            MeResponse {
-                user: UserResponse {
-                    id: current_user.id.to_string(),
-                    email: current_user.email,
-                },
-            },
-        ),
-    ))
+    Ok((StatusCode::OK, response::ok("you are", MeResponse { user })))
 }

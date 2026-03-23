@@ -1,13 +1,13 @@
-use axum::{
-    Router,
-    routing::{get, post},
-};
+use axum::{Router, middleware, routing::get};
 
-use crate::{app_state::AppState, modules::users::handler};
+use crate::{app_state::AppState, common::auth::middleware::require_auth, modules::users::handler};
 
-pub fn router() -> Router<AppState> {
+pub fn router(state: AppState) -> Router<AppState> {
+    let base_path = "/users";
+
+    let me_path = format!("{}/me", base_path);
+
     Router::new()
-        .route("/users/register", post(handler::register_user))
-        .route("/users/login", post(handler::login_user))
-        .route("/users/me", get(handler::me))
+        .route(&me_path, get(handler::me))
+        .route_layer(middleware::from_fn_with_state(state, require_auth))
 }

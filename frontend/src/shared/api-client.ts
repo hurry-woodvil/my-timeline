@@ -4,13 +4,14 @@ import {
   PostApiRequest,
   PutApiRequest,
 } from './api-request-type';
+import { ApiResponse } from '../features/auth/types/auth';
 
 export class ApiClient {
   constructor(private readonly baseUrl: string) {}
 
   async request<TResponse, TBody = unknown, TQuery = unknown>(
     req: ApiRequest<TBody, TQuery>,
-  ): Promise<TResponse> {
+  ): Promise<ApiResponse<TResponse>> {
     const url = this.buildUrl(req.path, 'query' in req ? req.query : undefined);
 
     const headers: Record<string, string> = {
@@ -28,6 +29,7 @@ export class ApiClient {
     const response = await fetch(url, {
       method: req.method,
       headers,
+      credentials: 'include',
       body: this.hasBody(req) ? JSON.stringify(req.body) : undefined,
     });
 
@@ -36,10 +38,10 @@ export class ApiClient {
     }
 
     if (response.status === 204) {
-      return undefined as TResponse;
+      return undefined as unknown as ApiResponse<TResponse>;
     }
 
-    return (await response.json()) as TResponse;
+    return (await response.json()) as ApiResponse<TResponse>;
   }
 
   private buildUrl(path: string, query?: unknown): string {

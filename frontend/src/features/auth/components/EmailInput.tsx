@@ -1,9 +1,16 @@
+type ChangeEvent = React.ChangeEvent<HTMLInputElement, HTMLInputElement>;
+
 type EmailInputProps = {
   email: string;
-  setEmail: (value: string) => void;
+  setEmail: (email: React.SetStateAction<string>) => void;
 };
 
 export default function EmailInput({ email, setEmail }: EmailInputProps) {
+  const changeHandler = (e: ChangeEvent) => {
+    const val = e.target.value;
+    setEmail(val);
+  };
+
   return (
     <div className="mb-3">
       <label htmlFor="email" className="block text-sm">
@@ -14,7 +21,7 @@ export default function EmailInput({ email, setEmail }: EmailInputProps) {
         type="email"
         className="w-full border p-2"
         value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        onChange={changeHandler}
         autoComplete="email"
       />
     </div>
