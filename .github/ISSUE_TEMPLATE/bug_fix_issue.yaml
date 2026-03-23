@@ -1,6 +1,7 @@
 name: "Bug report"
 description: Report an issue
-labels: [bug]
+labels:
+  - bugs
 type: Bug
 body:
   - type: textarea
