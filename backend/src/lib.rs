@@ -4,11 +4,18 @@ mod extractors;
 mod modules;
 mod routes;
 
-use axum::Router;
+use axum::{
+    Router,
+    http::{
+        HeaderValue,
+        header::{AUTHORIZATION, CONTENT_TYPE},
+    },
+};
+use axum_server::tls_rustls::RustlsConfig;
 use dotenvy::dotenv;
 use sqlx::sqlite::SqlitePoolOptions;
 use std::{env, net::SocketAddr};
-use tower_http::cors::CorsLayer;
+use tower_http::cors::{AllowOrigin, CorsLayer};
 
 pub async fn run() {
     dotenv().ok();
@@ -30,18 +37,34 @@ pub async fn run() {
     let auth_service = app_state::AuthService { jwt_secret };
     let state = app_state::AppState { db, auth_service };
 
+    let cors = CorsLayer::new()
+        .allow_origin(AllowOrigin::exact(
+            "https://localhost:5173"
+                .parse::<HeaderValue>()
+                .expect("invalid frontend origin"),
+        ))
+        .allow_credentials(true)
+        .allow_methods([])
+        .allow_headers([AUTHORIZATION, CONTENT_TYPE]);
+
     let app = Router::new()
         .merge(routes::auth::router())
         .merge(routes::users::router(state.clone()))
-        .layer(CorsLayer::permissive())
+        .layer(cors)
         .with_state(state);
 
+    let tls_config =
+        RustlsConfig::from_pem_file("certs/localhost+2.pem", "certs/localhost+2-key.pem")
+            .await
+            .expect("failed to load TLS certificate files");
+
     let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
-    let listener = tokio::net::TcpListener::bind(addr)
+
+    println!("server running on https://{}", addr);
+    println!("allowed frontend origin: https://localhost:5173");
+
+    axum_server::bind_rustls(addr, tls_config)
+        .serve(app.into_make_service())
         .await
-        .expect("failed to bind");
-
-    println!("server running on http://{}", addr);
-
-    axum::serve(listener, app).await.expect("server error");
+        .expect("server error");
 }
