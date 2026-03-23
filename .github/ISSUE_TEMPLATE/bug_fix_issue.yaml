@@ -1,8 +1,10 @@
-name: "Bug report"
-description: Report an issue
+name: Bug
+description: Create a bug issue
 labels:
   - bugs
 type: Bug
+title: "[Bug] "
+assignees: hurrry-woodvil
 body:
   - type: textarea
     id: bug-description
