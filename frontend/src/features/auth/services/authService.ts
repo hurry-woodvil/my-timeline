@@ -1,16 +1,46 @@
-import { SignInRequest, SignInResponse } from '../types/auth';
+import {
+  ApiResponse,
+  SignInRequest,
+  SignInResponseData,
+  SignUpRequest,
+  SignUpResponseData,
+  RefreshRequest,
+  RefreshResponseData,
+} from '../types/auth';
+import { callRefreshApi, callSignInApi } from './api';
 
-export async function signIn(payload: SignInRequest): Promise<SignInResponse> {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (!payload.email || !payload.password) {
-        reject(new Error('Email and Password are required.'));
-        return;
-      }
+export async function signin(
+  email: string,
+  password: string,
+): Promise<ApiResponse<SignInResponseData>> {
+  const payload: SignInRequest = {
+    email,
+    password,
+  };
 
-      resolve({
-        accessToken: 'token12345',
-      });
-    }, 500);
-  });
+  const body = await callSignInApi(payload);
+
+  return body;
+}
+
+export async function signup(
+  email: string,
+  password: string,
+): Promise<ApiResponse<SignUpResponseData>> {
+  const payload: SignUpRequest = {
+    email,
+    password,
+  };
+
+  const body = await callSignInApi(payload);
+
+  return body;
+}
+
+export async function refresh(): Promise<ApiResponse<RefreshResponseData>> {
+  const payload: RefreshRequest = {};
+
+  const body = await callRefreshApi(payload);
+
+  return body;
 }
