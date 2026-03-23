@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { SignInPage, GuestRoute, ProtectedRoute } from '../features/auth';
+import { AuthPage, GuestRoute, ProtectedRoute } from '../features/auth';
 import { TimelinePage } from '../features/timeline';
 
 export default function AppRouter() {
@@ -8,10 +8,10 @@ export default function AppRouter() {
       <BrowserRouter>
         <Routes>
           <Route
-            path="/signin"
+            path="/auth"
             element={
               <GuestRoute>
-                <SignInPage />
+                <AuthPage />
               </GuestRoute>
             }
           />
