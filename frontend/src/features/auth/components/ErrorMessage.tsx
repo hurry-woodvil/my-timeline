@@ -1,9 +1,7 @@
-type ErrorMessageProps = {
-  errorMessage: string;
-};
 import { useSignIn } from '../hooks/use-sign-in';
 
-export default function ErrorMessage({ errorMessage }: ErrorMessageProps) {
+export default function ErrorMessage() {
+  const { errorMessage } = useSignIn();
   return (
     <>
       {errorMessage ? (
