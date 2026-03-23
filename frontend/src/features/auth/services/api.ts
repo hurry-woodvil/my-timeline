@@ -5,7 +5,7 @@ import {
   PostApiRequest,
 } from '../../../shared/api-request-type';
 import {
-  Response,
+  ApiResponse,
   SignInRequest,
   SignInResponseData,
   SignUpRequest,
@@ -16,7 +16,7 @@ import {
 
 export async function callSignInApi(
   payload: SignInRequest,
-): Promise<Response<SignInResponseData>> {
+): Promise<ApiResponse<SignInResponseData>> {
   const request: PostApiRequest<SignInRequest> = {
     method: 'POST',
     path: '/auth/signin',
@@ -32,7 +32,7 @@ export async function callSignInApi(
 
 export async function callSignUpApi(
   payload: SignUpRequest,
-): Promise<Response<SignUpResponseData>> {
+): Promise<ApiResponse<SignUpResponseData>> {
   const request: PostApiRequest<SignUpRequest> = {
     method: 'POST',
     path: '/auth/signup',
@@ -48,7 +48,7 @@ export async function callSignUpApi(
 
 export async function callRefreshApi(
   payload: RefreshRequest,
-): Promise<Response<RefreshResponseData>> {
+): Promise<ApiResponse<RefreshResponseData>> {
   const request: GetApiRequest<RefreshRequest> = {
     method: 'GET',
     path: '/auth/refresh',

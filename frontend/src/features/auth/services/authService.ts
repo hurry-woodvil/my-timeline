@@ -1,5 +1,5 @@
 import {
-  Response,
+  ApiResponse,
   SignInRequest,
   SignInResponseData,
   SignUpRequest,
@@ -12,7 +12,7 @@ import { callRefreshApi, callSignInApi } from './api';
 export async function signin(
   email: string,
   password: string,
-): Promise<Response<SignInResponseData>> {
+): Promise<ApiResponse<SignInResponseData>> {
   const payload: SignInRequest = {
     email,
     password,
@@ -26,7 +26,7 @@ export async function signin(
 export async function signup(
   email: string,
   password: string,
-): Promise<Response<SignUpResponseData>> {
+): Promise<ApiResponse<SignUpResponseData>> {
   const payload: SignUpRequest = {
     email,
     password,
@@ -37,7 +37,7 @@ export async function signup(
   return body;
 }
 
-export async function refresh(): Promise<Response<RefreshResponseData>> {
+export async function refresh(): Promise<ApiResponse<RefreshResponseData>> {
   const payload: RefreshRequest = {};
 
   const body = await callRefreshApi(payload);
