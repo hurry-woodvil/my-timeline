@@ -75,7 +75,7 @@ pub async fn delete_by_hash(db: &SqlitePool, token_hash: &str) -> Result<(), App
     let result = sqlx::query(
         r#"
         DELETE FROM refresh_tokens
-        WHRER token_hash = ?
+        WHERE token_hash = ?
         "#,
     )
     .bind(token_hash)
