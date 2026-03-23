@@ -7,7 +7,7 @@ import {
   RefreshRequest,
   RefreshResponseData,
 } from '../types/auth';
-import { callRefreshApi, callSignInApi } from './api';
+import { callRefreshApi, callSignInApi, callSignUpApi } from './api';
 
 export async function signin(
   email: string,
@@ -32,7 +32,7 @@ export async function signup(
     password,
   };
 
-  const body = await callSignInApi(payload);
+  const body = await callSignUpApi(payload);
 
   return body;
 }
