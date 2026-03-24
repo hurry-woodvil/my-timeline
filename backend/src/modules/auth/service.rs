@@ -15,7 +15,7 @@ use crate::{
     common::{
         error::AppError,
         repository::{
-            refresh_tokens::{RefreshToken, insert_refresh_token},
+            refresh_tokens::{RefreshToken, delete_by_hash, insert_refresh_token},
             user::{User, insert_user, select_user_by_email},
         },
     },
@@ -90,4 +90,8 @@ pub async fn save_refresh_token(
         .build();
 
     Ok(jar.add(cookie))
+}
+
+pub async fn signout(db: &SqlitePool, refresh_token_hash: &str) -> Result<(), AppError> {
+    delete_by_hash(db, refresh_token_hash).await
 }

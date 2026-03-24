@@ -59,7 +59,7 @@ pub mod token {
         })
     }
 
-    fn hash_refresh_token(raw_token: &str) -> String {
+    pub fn hash_refresh_token(raw_token: &str) -> String {
         let mut hasher = Sha256::new();
 
         hasher.update(raw_token.as_bytes());

@@ -1,5 +1,9 @@
 use axum::{Json, extract::State, http::StatusCode};
-use axum_extra::extract::CookieJar;
+use axum_extra::extract::{
+    CookieJar,
+    cookie::{Cookie, SameSite},
+};
+use time::Duration;
 
 use crate::{
     app_state::AppState,
@@ -7,7 +11,10 @@ use crate::{
         auth::service::token, error::AppError, repository::user::select_user_by_id, response,
     },
     modules::auth::{
-        dto::{RefreshResponse, SigninRequest, SigninResponse, SignupRequest, SignupResponse},
+        dto::{
+            RefreshResponse, SigninRequest, SigninResponse, SignoutResponse, SignupRequest,
+            SignupResponse,
+        },
         service,
     },
 };
@@ -55,6 +62,33 @@ pub async fn signup(
         StatusCode::CREATED,
         jar,
         response::ok("user created", SignupResponse { access_token }),
+    ))
+}
+
+pub async fn signout(
+    State(state): State<AppState>,
+    cookie_jar: CookieJar,
+) -> response::ApiCookieResult<SignoutResponse> {
+    if let Some(refresh_token) = cookie_jar.get("refresh_token") {
+        let raw_token = refresh_token.value().to_string();
+        let token_hash = token::hash_refresh_token(&raw_token);
+        service::signout(&state.db, &token_hash).await?;
+    }
+
+    let remove_cookie = Cookie::build(("refresh_token", "".to_string()))
+        .secure(true)
+        .http_only(true)
+        .same_site(SameSite::Lax)
+        .path("/")
+        .max_age(Duration::seconds(0))
+        .build();
+
+    let jar = cookie_jar.remove(remove_cookie);
+
+    Ok((
+        StatusCode::OK,
+        jar,
+        response::ok("user signout", SignoutResponse {}),
     ))
 }
 
