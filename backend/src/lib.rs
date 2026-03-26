@@ -1,5 +1,6 @@
 mod app_state;
 mod common;
+mod config;
 mod extractors;
 mod modules;
 mod routes;
@@ -18,6 +19,8 @@ use sqlx::sqlite::SqlitePoolOptions;
 use std::{env, net::SocketAddr};
 use tower_http::cors::{AllowOrigin, CorsLayer};
 
+use crate::config::auth_storage::AuthStorageKind;
+
 pub async fn run() {
     aws_lc_rs::default_provider()
         .install_default()
@@ -34,13 +37,24 @@ pub async fn run() {
         .await
         .expect("failed to connect database");
 
+    let auth_storage_kind = AuthStorageKind::from_env();
+
+    let users_repository = common::repository::create_users_repository(auth_storage_kind).await;
+    let refresh_tokens_repository =
+        common::repository::create_refresh_tokens_repository(auth_storage_kind);
+
     sqlx::migrate!("./migrations/")
         .run(&db)
         .await
         .expect("failed to run migrations");
 
     let auth_service = app_state::AuthService { jwt_secret };
-    let state = app_state::AppState { db, auth_service };
+    let state = app_state::AppState {
+        db,
+        users_repository,
+        refresh_tokens_repository,
+        auth_service,
+    };
 
     let cors = CorsLayer::new()
         .allow_origin(AllowOrigin::exact(
