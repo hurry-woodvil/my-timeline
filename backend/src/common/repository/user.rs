@@ -1,9 +1,12 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
+use async_trait::async_trait;
 use chrono::{DateTime, Utc};
 use sqlx::{Row, SqlitePool};
+use tokio::sync::RwLock;
+use uuid::Uuid;
 
-use crate::common::error::AppError;
+use crate::{common::error::AppError, modules::auth::service::hash_password};
 
 #[derive(Debug, Clone)]
 pub struct User {
@@ -16,7 +19,8 @@ pub struct User {
     pub updated_at: DateTime<Utc>,
 }
 
-trait UserRepositoryTrait {
+#[async_trait]
+pub trait UsersRepositoryTrait: Send + Sync {
     async fn select_user_by_id(&self, db: &SqlitePool, id: &str) -> Result<Option<User>, AppError>;
     async fn select_user_by_name(
         &self,
@@ -28,22 +32,66 @@ trait UserRepositoryTrait {
         db: &SqlitePool,
         email: &str,
     ) -> Result<Option<User>, AppError>;
-    async fn insert_user(&mut self, db: &SqlitePool, user: &User) -> Result<(), AppError>;
+    async fn insert_user(&self, db: &SqlitePool, user: &User) -> Result<(), AppError>;
 }
 
-pub struct InMemoryUserRepository {
-    pub users_by_id: HashMap<String, User>,
-    pub users_by_name: HashMap<String, User>,
-    pub users_by_email: HashMap<String, User>,
+pub type UsersRepository = Arc<dyn UsersRepositoryTrait + Send + Sync>;
+
+pub struct InMemoryUsersRepository {
+    pub users_by_id: RwLock<HashMap<String, User>>,
+    pub users_by_name: RwLock<HashMap<String, User>>,
+    pub users_by_email: RwLock<HashMap<String, User>>,
 }
 
-impl UserRepositoryTrait for InMemoryUserRepository {
+impl InMemoryUsersRepository {
+    pub async fn new(&self) -> Result<(), AppError> {
+        let user_id = Uuid::new_v4().to_string();
+        let user_name = "test-user".to_string();
+        let user_email = "test@example.com".to_string();
+        let password_hash = hash_password("password").unwrap();
+        let is_active = true;
+        let now = Utc::now();
+        let created_at = now;
+        let updated_at = now;
+
+        let user = User {
+            user_id,
+            user_name,
+            user_email,
+            password_hash,
+            is_active,
+            created_at,
+            updated_at,
+        };
+
+        {
+            let mut map = self.users_by_id.write().await;
+            map.insert(user.user_id.clone(), user.clone());
+        }
+
+        {
+            let mut map = self.users_by_name.write().await;
+            map.insert(user.user_name.clone(), user.clone());
+        }
+
+        {
+            let mut map = self.users_by_email.write().await;
+            map.insert(user.user_email.clone(), user.clone());
+        }
+
+        Ok(())
+    }
+}
+
+#[async_trait]
+impl UsersRepositoryTrait for InMemoryUsersRepository {
     async fn select_user_by_id(
         &self,
         _db: &SqlitePool,
         id: &str,
     ) -> Result<Option<User>, AppError> {
-        Ok(self.users_by_id.get(id).cloned())
+        let map = self.users_by_id.read().await;
+        Ok(map.get(id).cloned())
     }
 
     async fn select_user_by_name(
@@ -51,7 +99,8 @@ impl UserRepositoryTrait for InMemoryUserRepository {
         _db: &SqlitePool,
         name: &str,
     ) -> Result<Option<User>, AppError> {
-        Ok(self.users_by_name.get(name).cloned())
+        let map = self.users_by_name.read().await;
+        Ok(map.get(name).cloned())
     }
 
     async fn select_user_by_email(
@@ -59,15 +108,25 @@ impl UserRepositoryTrait for InMemoryUserRepository {
         _db: &SqlitePool,
         email: &str,
     ) -> Result<Option<User>, AppError> {
-        Ok(self.users_by_email.get(email).cloned())
+        let map = self.users_by_email.read().await;
+        Ok(map.get(email).cloned())
     }
 
-    async fn insert_user(&mut self, _db: &SqlitePool, user: &User) -> Result<(), AppError> {
-        self.users_by_id.insert(user.user_id.clone(), user.clone());
-        self.users_by_name
-            .insert(user.user_name.clone(), user.clone());
-        self.users_by_email
-            .insert(user.user_email.clone(), user.clone());
+    async fn insert_user(&self, _db: &SqlitePool, user: &User) -> Result<(), AppError> {
+        {
+            let mut map = self.users_by_id.write().await;
+            map.insert(user.user_id.clone(), user.clone());
+        }
+
+        {
+            let mut map = self.users_by_name.write().await;
+            map.insert(user.user_name.clone(), user.clone());
+        }
+
+        {
+            let mut map = self.users_by_email.write().await;
+            map.insert(user.user_email.clone(), user.clone());
+        }
 
         Ok(())
     }
@@ -75,7 +134,8 @@ impl UserRepositoryTrait for InMemoryUserRepository {
 
 pub struct InDatabaseUserRepository;
 
-impl UserRepositoryTrait for InDatabaseUserRepository {
+#[async_trait]
+impl UsersRepositoryTrait for InDatabaseUserRepository {
     async fn select_user_by_id(&self, db: &SqlitePool, id: &str) -> Result<Option<User>, AppError> {
         let row = sqlx::query(
             r#"
@@ -207,7 +267,7 @@ impl UserRepositoryTrait for InDatabaseUserRepository {
         }))
     }
 
-    async fn insert_user(&mut self, db: &SqlitePool, user: &User) -> Result<(), AppError> {
+    async fn insert_user(&self, db: &SqlitePool, user: &User) -> Result<(), AppError> {
         let result = sqlx::query(
             r#"
         INSERT INTO users (

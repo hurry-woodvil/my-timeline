@@ -11,9 +11,7 @@ pub mod token {
         common::{
             auth::model::Claims,
             error::AppError,
-            repository::refresh_tokens::{
-                RefreshToken, delete_by_hash, select_refresh_token_by_hash,
-            },
+            repository::refresh_tokens::{RefreshToken, RefreshTokensRepository},
         },
         modules::auth::model::NewRefreshToken,
     };
@@ -83,18 +81,22 @@ pub mod token {
 
     pub async fn verify_refresh_token(
         db: &SqlitePool,
+        refresh_tokens_repository: &RefreshTokensRepository,
         raw_token: &str,
     ) -> Result<RefreshToken, AppError> {
         let token_hash = hash_refresh_token(raw_token);
 
-        let refresh_token = select_refresh_token_by_hash(db, &token_hash)
+        let refresh_token = refresh_tokens_repository
+            .select_refresh_token_by_hash(db, &token_hash)
             .await?
             .ok_or_else(|| AppError::Unauthorized("invalid refresh token".to_string()))?;
 
         let now = Utc::now().timestamp();
 
         if refresh_token.expires_at < now {
-            delete_by_hash(db, &token_hash).await?;
+            refresh_tokens_repository
+                .delete_by_hash(db, &token_hash)
+                .await?;
             return Err(AppError::Unauthorized("refresh token expired".to_string()));
         }
 

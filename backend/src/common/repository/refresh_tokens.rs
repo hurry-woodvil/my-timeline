@@ -1,6 +1,8 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
+use async_trait::async_trait;
 use sqlx::{Row, SqlitePool};
+use tokio::sync::RwLock;
 
 use crate::common::error::AppError;
 
@@ -13,53 +15,58 @@ pub struct RefreshToken {
     pub created_at: i64,
 }
 
-trait RefreshTokensRepositoryTrait {
+#[async_trait]
+pub trait RefreshTokensRepositoryTrait: Send + Sync {
     async fn select_refresh_token_by_hash(
         &self,
         db: &SqlitePool,
         token_hash: &str,
     ) -> Result<Option<RefreshToken>, AppError>;
     async fn insert_refresh_token(
-        &mut self,
+        &self,
         db: &SqlitePool,
         refresh_token: &RefreshToken,
     ) -> Result<(), AppError>;
-    async fn delete_by_hash(&mut self, db: &SqlitePool, token_hash: &str) -> Result<(), AppError>;
+    async fn delete_by_hash(&self, db: &SqlitePool, token_hash: &str) -> Result<(), AppError>;
 }
+
+pub type RefreshTokensRepository = Arc<dyn RefreshTokensRepositoryTrait + Send + Sync>;
 
 pub struct InMemoryRefreshTokensRepository {
-    pub refresh_tokens_by_hash: HashMap<String, RefreshToken>,
+    pub refresh_tokens_by_hash: RwLock<HashMap<String, RefreshToken>>,
 }
 
+#[async_trait]
 impl RefreshTokensRepositoryTrait for InMemoryRefreshTokensRepository {
     async fn select_refresh_token_by_hash(
         &self,
         _db: &SqlitePool,
         token_hash: &str,
     ) -> Result<Option<RefreshToken>, AppError> {
-        Ok(self.refresh_tokens_by_hash.get(token_hash).cloned())
+        let map = self.refresh_tokens_by_hash.read().await;
+        Ok(map.get(token_hash).cloned())
     }
 
     async fn insert_refresh_token(
-        &mut self,
+        &self,
         _db: &SqlitePool,
         refresh_token: &RefreshToken,
     ) -> Result<(), AppError> {
-        self.refresh_tokens_by_hash
-            .insert(refresh_token.token_hash.clone(), refresh_token.clone());
-
+        let mut map = self.refresh_tokens_by_hash.write().await;
+        map.insert(refresh_token.token_hash.clone(), refresh_token.clone());
         Ok(())
     }
 
-    async fn delete_by_hash(&mut self, _db: &SqlitePool, token_hash: &str) -> Result<(), AppError> {
-        self.refresh_tokens_by_hash.remove(token_hash);
-
+    async fn delete_by_hash(&self, _db: &SqlitePool, token_hash: &str) -> Result<(), AppError> {
+        let mut map = self.refresh_tokens_by_hash.write().await;
+        map.remove(token_hash);
         Ok(())
     }
 }
 
 pub struct InDataBaseRefreshTokensRepository;
 
+#[async_trait]
 impl RefreshTokensRepositoryTrait for InDataBaseRefreshTokensRepository {
     async fn select_refresh_token_by_hash(
         &self,
@@ -96,7 +103,7 @@ impl RefreshTokensRepositoryTrait for InDataBaseRefreshTokensRepository {
     }
 
     async fn insert_refresh_token(
-        &mut self,
+        &self,
         db: &SqlitePool,
         token: &RefreshToken,
     ) -> Result<(), AppError> {
@@ -126,7 +133,7 @@ impl RefreshTokensRepositoryTrait for InDataBaseRefreshTokensRepository {
         }
     }
 
-    async fn delete_by_hash(&mut self, db: &SqlitePool, token_hash: &str) -> Result<(), AppError> {
+    async fn delete_by_hash(&self, db: &SqlitePool, token_hash: &str) -> Result<(), AppError> {
         let result = sqlx::query(
             r#"
         DELETE FROM refresh_tokens

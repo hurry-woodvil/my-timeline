@@ -7,9 +7,7 @@ use time::Duration;
 
 use crate::{
     app_state::AppState,
-    common::{
-        auth::service::token, error::AppError, repository::user::select_user_by_id, response,
-    },
+    common::{auth::service::token, error::AppError, response},
     modules::auth::{
         dto::{
             RefreshResponse, SigninRequest, SigninResponse, SignoutResponse, SignupRequest,
@@ -26,14 +24,19 @@ pub async fn signin(
 ) -> response::ApiCookieResult<SigninResponse> {
     validate::signin_request(&payload)?;
 
-    let user = service::signin(&state.db, payload).await?;
+    let user = service::signin(&state.db, &state.users_repository, payload).await?;
 
-    let access_token =
-        token::generate_access_token(&user.id.to_string(), &state.auth_service.jwt_secret)?;
+    let access_token = token::generate_access_token(&user.user_id, &state.auth_service.jwt_secret)?;
 
-    let refresh_token = token::generate_refresh_token(&user.id.to_string(), 7)?;
+    let refresh_token = token::generate_refresh_token(&user.user_id, 7)?;
 
-    let jar = service::save_refresh_token(&state.db, cookie_jar, refresh_token).await?;
+    let jar = service::save_refresh_token(
+        &state.db,
+        &state.refresh_tokens_repository,
+        cookie_jar,
+        refresh_token,
+    )
+    .await?;
 
     Ok((
         StatusCode::OK,
@@ -49,14 +52,19 @@ pub async fn signup(
 ) -> response::ApiCookieResult<SignupResponse> {
     validate::signup_request(&payload)?;
 
-    let user = service::signup(&state.db, payload).await?;
+    let user = service::signup(&state.db, &state.users_repository, payload).await?;
 
-    let access_token =
-        token::generate_access_token(&user.id.to_string(), &state.auth_service.jwt_secret)?;
+    let access_token = token::generate_access_token(&user.user_id, &state.auth_service.jwt_secret)?;
 
-    let refresh_token = token::generate_refresh_token(&user.id.to_string(), 7)?;
+    let refresh_token = token::generate_refresh_token(&user.user_id, 7)?;
 
-    let jar = service::save_refresh_token(&state.db, cookie_jar, refresh_token).await?;
+    let jar = service::save_refresh_token(
+        &state.db,
+        &state.refresh_tokens_repository,
+        cookie_jar,
+        refresh_token,
+    )
+    .await?;
 
     Ok((
         StatusCode::CREATED,
@@ -72,7 +80,7 @@ pub async fn signout(
     if let Some(refresh_token) = cookie_jar.get("refresh_token") {
         let raw_token = refresh_token.value().to_string();
         let token_hash = token::hash_refresh_token(&raw_token);
-        service::signout(&state.db, &token_hash).await?;
+        service::signout(&state.db, &state.refresh_tokens_repository, &token_hash).await?;
     }
 
     let remove_cookie = Cookie::build(("refresh_token", "".to_string()))
@@ -101,19 +109,32 @@ pub async fn refresh(
         .map(|cookie| cookie.value().to_string())
         .ok_or_else(|| AppError::Unauthorized("refresh token not found".to_string()))?;
 
-    let refresh_token = token::verify_refresh_token(&state.db, &raw_refresh_token).await?;
+    let refresh_token = token::verify_refresh_token(
+        &state.db,
+        &state.refresh_tokens_repository,
+        &raw_refresh_token,
+    )
+    .await?;
 
-    let user = select_user_by_id(&state.db, &refresh_token.user_id)
+    let user = state
+        .users_repository
+        .select_user_by_id(&state.db, &refresh_token.user_id)
         .await?
         .ok_or_else(|| AppError::Unauthorized("".to_string()))?;
 
-    let user_id = user.id.to_string();
+    let user_id = user.user_id;
 
     let access_token = token::generate_access_token(&user_id, &state.auth_service.jwt_secret)?;
 
     let refresh_token = token::generate_refresh_token(&user_id, 7)?;
 
-    let jar = service::save_refresh_token(&state.db, cookie_jar, refresh_token).await?;
+    let jar = service::save_refresh_token(
+        &state.db,
+        &state.refresh_tokens_repository,
+        cookie_jar,
+        refresh_token,
+    )
+    .await?;
 
     Ok((
         StatusCode::OK,
