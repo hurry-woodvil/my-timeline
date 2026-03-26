@@ -3,7 +3,10 @@ use sqlx::SqlitePool;
 use crate::common::{
     auth::{model::Claims, service::token},
     error::AppError,
-    repository::{refresh_tokens::RefreshTokensRepository, user::UsersRepository},
+    repository::{
+        memories::MemoriesRepository, refresh_tokens::RefreshTokensRepository,
+        user::UsersRepository,
+    },
 };
 
 #[derive(Clone)]
@@ -11,6 +14,7 @@ pub struct AppState {
     pub db: SqlitePool,
     pub users_repository: UsersRepository,
     pub refresh_tokens_repository: RefreshTokensRepository,
+    pub memories_repository: MemoriesRepository,
     pub auth_service: AuthService,
 }
 

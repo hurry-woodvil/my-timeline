@@ -42,6 +42,7 @@ pub async fn run() {
     let users_repository = common::repository::create_users_repository(auth_storage_kind).await;
     let refresh_tokens_repository =
         common::repository::create_refresh_tokens_repository(auth_storage_kind);
+    let memories_repository = common::repository::create_memories_repository(auth_storage_kind);
 
     sqlx::migrate!("./migrations/")
         .run(&db)
@@ -53,6 +54,7 @@ pub async fn run() {
         db,
         users_repository,
         refresh_tokens_repository,
+        memories_repository,
         auth_service,
     };
 
@@ -76,6 +78,7 @@ pub async fn run() {
     let app = Router::new()
         .merge(routes::auth::router())
         .merge(routes::users::router(state.clone()))
+        .merge(routes::memory::router(state.clone()))
         .layer(cors)
         .with_state(state);
 
