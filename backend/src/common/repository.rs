@@ -57,7 +57,6 @@ pub fn create_memories_repository(kind: AuthStorageKind) -> MemoriesRepository {
         AuthStorageKind::Memory => {
             let repo: MemoriesRepository = Arc::new(InMemoryMemoriesRepository {
                 memories_by_memory_id: RwLock::new(HashMap::new()),
-                memories_by_user_id: RwLock::new(HashMap::new()),
             });
             repo
         }
