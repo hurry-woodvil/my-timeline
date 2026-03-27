@@ -3,17 +3,17 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { X } from 'lucide-react';
 import { useState } from 'react';
-import { postMemory as postMemoryService } from '@/features/memory/services/memory-service';
 
 type PostMemoryDialogProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit?: (content: string) => Promise<void> | void;
+  onSubmit: (content: string) => Promise<void> | void;
 };
 
 export default function PostMemoryDialog({
   isOpen,
   onOpenChange,
+  onSubmit,
 }: PostMemoryDialogProps) {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -29,9 +29,7 @@ export default function PostMemoryDialog({
 
     try {
       setIsSubmitting(true);
-      let result = await postMemoryService(trimmed);
-      console.log(result.message);
-      console.log(result.data);
+      onSubmit(trimmed);
       setContent('');
       onOpenChange(false);
     } finally {
