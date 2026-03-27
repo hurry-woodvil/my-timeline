@@ -41,11 +41,15 @@ impl MemoriesRepositoryTrait for InMemoryMemoriesRepository {
     ) -> Result<Vec<Memory>, AppError> {
         let map = self.memories_by_memory_id.read().await;
 
-        Ok(map
+        let mut memories: Vec<Memory> = map
             .values()
             .filter(|m| m.user_id == user_id)
             .cloned()
-            .collect())
+            .collect();
+
+        memories.sort_by(|a, b| b.created_at.cmp(&a.created_at));
+
+        Ok(memories)
     }
 
     async fn insert_memory(&self, _db: &SqlitePool, memory: &Memory) -> Result<(), AppError> {
