@@ -1,8 +1,12 @@
-import { env } from '../../../config/env';
-import { ApiClient } from '../../../shared/api-client';
-import { PostApiRequest } from '../../../shared/api-request-type';
+import { useApp } from '@/contexts';
+import { PostApiRequest, GetApiRequest } from '@/lib';
 import { ApiResponse } from '../../auth';
-import { PostMemoryRequest, PostMemoryResponseData } from '../types/memory';
+import {
+  PostMemoryRequest,
+  PostMemoryResponseData,
+  MemoriesRequest,
+  MemoriesResponseData,
+} from '../types';
 
 export async function callPostMemoryApi(
   payload: PostMemoryRequest,
@@ -14,8 +18,24 @@ export async function callPostMemoryApi(
     body: payload,
   };
 
-  const apiClient = new ApiClient(env.apiBaseUrl);
+  const { apiClient } = useApp();
   const response = await apiClient.request<PostMemoryResponseData>(request);
+
+  return response;
+}
+
+export async function callMemoriesApi(): Promise<
+  ApiResponse<MemoriesResponseData>
+> {
+  const request: GetApiRequest<MemoriesRequest> = {
+    method: 'GET',
+    path: 'memories',
+    withAuth: true,
+    query: {},
+  };
+
+  const { apiClient } = useApp();
+  const response = await apiClient.request<MemoriesResponseData>(request);
 
   return response;
 }

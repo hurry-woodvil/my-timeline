@@ -1,6 +1,10 @@
-import { ApiResponse } from '../../auth';
-import { PostMemoryRequest, PostMemoryResponseData } from '../types/memory';
-import { callPostMemoryApi } from './api';
+import { ApiResponse } from '@/features/auth';
+import {
+  PostMemoryRequest,
+  PostMemoryResponseData,
+  MemoriesResponseData,
+} from '../types';
+import { callPostMemoryApi, callMemoriesApi } from './api';
 
 export async function postMemory(
   content: string,
@@ -10,6 +14,12 @@ export async function postMemory(
   };
 
   const body = await callPostMemoryApi(payload);
+
+  return body;
+}
+
+export async function memories(): Promise<ApiResponse<MemoriesResponseData>> {
+  const body = await callMemoriesApi();
 
   return body;
 }

@@ -1,14 +1,15 @@
-import AppRouter from './router';
-import { AuthProvider } from '../features/auth/contexts/AuthContext';
+import { AppRouter } from '@/routes';
+import { AppProvider, AuthProvider } from '@/contexts';
+import { TooltipProvider } from '@/lib/components/ui/tooltip';
 
 export default function App() {
   return (
-    <main>
-      <div>
-        <AuthProvider>
+    <AppProvider>
+      <AuthProvider>
+        <TooltipProvider>
           <AppRouter />
-        </AuthProvider>
-      </div>
-    </main>
+        </TooltipProvider>
+      </AuthProvider>
+    </AppProvider>
   );
 }

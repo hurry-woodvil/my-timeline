@@ -1,9 +1,5 @@
-import { env } from '../../../config/env';
-import { ApiClient } from '../../../shared/api-client';
-import {
-  GetApiRequest,
-  PostApiRequest,
-} from '../../../shared/api-request-type';
+import { useApp } from '@/contexts';
+import { GetApiRequest, PostApiRequest } from '@/lib';
 import {
   ApiResponse,
   SignInRequest,
@@ -26,7 +22,7 @@ export async function callSignInApi(
     body: payload,
   };
 
-  const apiClient = new ApiClient(env.apiBaseUrl);
+  const { apiClient } = useApp();
   const response = await apiClient.request<SignInResponseData>(request);
 
   return response;
@@ -42,7 +38,7 @@ export async function callSignUpApi(
     body: payload,
   };
 
-  const apiClient = new ApiClient(env.apiBaseUrl);
+  const { apiClient } = useApp();
   const response = await apiClient.request<SignUpResponseData>(request);
 
   return response;
@@ -58,7 +54,7 @@ export async function callSignoutApi(
     query: payload,
   };
 
-  const apiClient = new ApiClient(env.apiBaseUrl);
+  const { apiClient } = useApp();
   const response = await apiClient.request<SignOutResponseData>(request);
 
   return response;
@@ -74,7 +70,7 @@ export async function callRefreshApi(
     query: payload,
   };
 
-  const apiClient = new ApiClient(env.apiBaseUrl);
+  const { apiClient } = useApp();
   const response = await apiClient.request<RefreshResponseData>(request);
 
   return response;

@@ -1,1 +1,2 @@
-export { default as PostMemoryDialog } from '@/features/memory/components/PostMemoryDialog';
+export * from './types';
+export * from './services/memory-service';
