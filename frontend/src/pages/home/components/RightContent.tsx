@@ -1,5 +1,6 @@
 import { Memory } from '@/features/memory';
 import { Button } from '@/lib/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 type RightContentProps = {
   isRefreshing: boolean;
@@ -17,18 +18,22 @@ export default function RightContent({
   errorMessage,
 }: RightContentProps) {
   return (
-    <section className="h-full flex-1 rounded-3xl border border-amber-100 bg-white/70 p-6 shadow-sm backdrop-blur-[2px]">
-      <header className="mb-6">
-        <p className="text-sm text-neutral-600">Today's Memories</p>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleRefresh}
-          disabled={isRefreshing || isLoading}
-        >
-          {isRefreshing ? 'Refreshing...' : 'Refresh'}
-        </Button>
-        <h2 className="text-xl font-semibold text-neutral-800">今日の投稿</h2>
+    <section className="flex min-h-0 flex-1 flex-col rounded-[2rem] border border-white/40 bg-white/70 p-6 shadow-sm backdrop-blur-md">
+      <header className="mb-4">
+        <p className="text-sm text-neutral-600">Today&apos;s Memories</p>
+
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold text-neutral-800">今日の投稿</h2>
+          <button
+            type="button"
+            aria-label="Refresh memories"
+            className="inline-flex size-9 items-center justify-center rounded-full border border-white/50 bg-white/70 text-neutral-700 transition hover:bg-white"
+            onClick={handleRefresh}
+            disabled={isRefreshing || isLoading}
+          >
+            <RefreshCw className="h-4 w-4" />
+          </button>
+        </div>
       </header>
 
       <div className="space-y-4">
