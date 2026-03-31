@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { signup as signupService } from '@/features/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,12 +17,8 @@ export function useSignUp() {
     setIsSubmitting(true);
 
     try {
-      const result = await signupService(email, password);
-      if (!result) {
-        console.log('signup failed');
-      }
-      signup(result.data);
-      navigate('/timeline');
+      signup(email, password);
+      navigate('/');
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to sign up.';
       setErrorMessage(message);

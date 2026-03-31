@@ -1,6 +1,6 @@
 import './background.css';
 
-export function Background() {
+export default function Background() {
   return (
     <div className="pointer-events-none absolute inset-0">
       {/* 海 → 砂浜 */}

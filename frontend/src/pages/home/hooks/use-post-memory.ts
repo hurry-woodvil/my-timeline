@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { postMemory as postMemoryService } from '@/features/memory/services/memory-service';
+import { useApp } from '@/contexts';
 
 export function usePostMemory() {
   const [content, setContent] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  const { apiClient } = useApp();
+
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
 
     try {
-      const result = await postMemoryService(content);
+      const result = await postMemoryService(apiClient, content);
 
       if (result.success) {
         setContent('');
@@ -24,7 +27,7 @@ export function usePostMemory() {
       setIsSubmitting(false);
       setContent('');
     }
-  }
+  };
 
   return {
     content,

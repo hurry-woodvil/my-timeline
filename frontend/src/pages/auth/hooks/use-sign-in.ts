@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { signin as signinService } from '@/features/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -18,12 +17,8 @@ export function useSignIn() {
     setIsSubmitting(true);
 
     try {
-      const result = await signinService(email, password);
-      if (!result) {
-        console.log('signin failed');
-      }
-      signin(result.data);
-      navigate('/timeline');
+      signin(email, password);
+      navigate('/');
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Failed to sign in.';
       setErrorMessage(message);

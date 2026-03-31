@@ -8,16 +8,18 @@ import {
 } from 'react';
 import {
   AuthState,
-  AuthToken,
+  signin as signinService,
+  signup as signupService,
   signout as signoutSevice,
 } from '@/features/auth';
+import { useApp } from './AppContext';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 
 type AuthContextValue = AuthState & {
   isInitializing: boolean;
-  signin: (payload: AuthToken) => void;
-  signup: (payload: AuthToken) => void;
+  signin: (email: string, password: string) => void;
+  signup: (email: string, password: string) => void;
   signout: () => void;
 };
 
@@ -30,6 +32,7 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
+  const { apiClient } = useApp();
 
   const isAuthenticated = !!accessToken;
 
@@ -39,27 +42,55 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setIsInitializing(false);
   }, []);
 
-  function signin(payload: AuthToken) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, payload.access_token);
+  const signin = async (email: string, password: string) => {
+    try {
+      const result = await signinService(apiClient, email, password);
 
-    setAccessToken(payload.access_token);
-  }
+      if (result.success) {
+        const token = result.data.access_token;
+        setToken(token);
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (e) {
+      removeToken();
+      throw e;
+    }
+  };
 
-  function signup(payload: AuthToken) {
-    localStorage.setItem(ACCESS_TOKEN_KEY, payload.access_token);
+  const signup = async (email: string, password: string) => {
+    try {
+      const result = await signupService(apiClient, email, password);
 
-    setAccessToken(payload.access_token);
-  }
+      if (result.success) {
+        const token = result.data.access_token;
+        setToken(token);
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (e) {
+      removeToken();
+      throw e;
+    }
+  };
 
-  async function signout() {
-    const body = await signoutSevice();
+  const signout = async () => {
+    const body = await signoutSevice(apiClient);
 
     console.log(body.message);
 
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
+    removeToken();
+  };
 
+  const setToken = (token: string) => {
+    localStorage.setItem(ACCESS_TOKEN_KEY, token);
+    setAccessToken(token);
+  };
+
+  const removeToken = () => {
+    localStorage.removeItem(ACCESS_TOKEN_KEY);
     setAccessToken(null);
-  }
+  };
 
   const value = useMemo<AuthContextValue>(
     () => ({

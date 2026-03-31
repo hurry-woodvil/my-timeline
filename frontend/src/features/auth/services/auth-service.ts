@@ -1,3 +1,4 @@
+import { ApiClient, GetApiRequest, PostApiRequest } from '@/lib';
 import {
   ApiResponse,
   SignInRequest,
@@ -9,14 +10,9 @@ import {
   SignOutResponseData,
   SignOutRequest,
 } from '../types/auth';
-import {
-  callRefreshApi,
-  callSignInApi,
-  callSignoutApi,
-  callSignUpApi,
-} from './api';
 
 export async function signin(
+  apiClient: ApiClient,
   email: string,
   password: string,
 ): Promise<ApiResponse<SignInResponseData>> {
@@ -25,12 +21,20 @@ export async function signin(
     password,
   };
 
-  const body = await callSignInApi(payload);
+  const request: PostApiRequest<SignInRequest> = {
+    method: 'POST',
+    path: '/auth/signin',
+    withAuth: false,
+    body: payload,
+  };
 
-  return body;
+  const response = await apiClient.request<SignInResponseData>(request);
+
+  return response;
 }
 
 export async function signup(
+  apiClient: ApiClient,
   email: string,
   password: string,
 ): Promise<ApiResponse<SignUpResponseData>> {
@@ -39,23 +43,48 @@ export async function signup(
     password,
   };
 
-  const body = await callSignUpApi(payload);
+  const request: PostApiRequest<SignUpRequest> = {
+    method: 'POST',
+    path: '/auth/signup',
+    withAuth: false,
+    body: payload,
+  };
 
-  return body;
+  const response = await apiClient.request<SignUpResponseData>(request);
+
+  return response;
 }
 
-export async function signout(): Promise<ApiResponse<SignOutResponseData>> {
+export async function signout(
+  apiClient: ApiClient,
+): Promise<ApiResponse<SignOutResponseData>> {
   const payload: SignOutRequest = {};
 
-  const body = await callSignoutApi(payload);
+  const request: GetApiRequest<SignOutRequest> = {
+    method: 'GET',
+    path: '/auth/signout',
+    withAuth: false,
+    query: payload,
+  };
 
-  return body;
+  const response = await apiClient.request<SignOutResponseData>(request);
+
+  return response;
 }
 
-export async function refresh(): Promise<ApiResponse<RefreshResponseData>> {
+export async function refresh(
+  apiClient: ApiClient,
+): Promise<ApiResponse<RefreshResponseData>> {
   const payload: RefreshRequest = {};
 
-  const body = await callRefreshApi(payload);
+  const request: GetApiRequest<RefreshRequest> = {
+    method: 'GET',
+    path: '/auth/refresh',
+    withAuth: false,
+    query: payload,
+  };
 
-  return body;
+  const response = await apiClient.request<RefreshResponseData>(request);
+
+  return response;
 }

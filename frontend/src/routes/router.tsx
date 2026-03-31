@@ -8,7 +8,16 @@ export default function AppRouter() {
   const router = createBrowserRouter([
     {
       element: <RootLayout />,
-      children: [{ path: '/', element: <HomePage /> }],
+      children: [
+        {
+          path: '/',
+          element: (
+            <ProtectedRoute>
+              <HomePage />
+            </ProtectedRoute>
+          ),
+        },
+      ],
     },
     {
       element: <AuthLayout />,
