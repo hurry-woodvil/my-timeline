@@ -140,4 +140,29 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
             Err(e) => Err(AppError::Database(e)),
         }
     }
+
+    async fn delete_by_memory_id(
+        &self,
+        db: &SqlitePool,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError> {
+        let result = sqlx::query(
+            r#"
+            DELETE FROM memories
+            WHERE memory_id = ? AND user_id = ?
+            "#,
+        )
+        .bind(memory_id)
+        .bind(user_id)
+        .execute(db)
+        .await
+        .map_err(AppError::Database)?;
+
+        if result.rows_affected() == 0 {
+            return Err(AppError::Internal("memory not found".to_string()));
+        }
+
+        Ok(())
+    }
 }
