@@ -24,6 +24,12 @@ pub trait MemoriesRepositoryTrait: Send + Sync {
         user_id: &str,
     ) -> Result<Vec<Memory>, AppError>;
     async fn insert_memory(&self, db: &SqlitePool, memory: &Memory) -> Result<(), AppError>;
+    async fn delete_by_memory_id(
+        &self,
+        db: &SqlitePool,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError>;
 }
 
 pub type MemoriesRepository = Arc<dyn MemoriesRepositoryTrait + Send + Sync>;
