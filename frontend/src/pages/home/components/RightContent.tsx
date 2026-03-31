@@ -1,6 +1,6 @@
 import { Memory } from '@/features/memory';
-import { Button } from '@/lib/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import MemoryCard from './MemoryCard';
 
 type RightContentProps = {
   isRefreshing: boolean;
@@ -58,15 +58,11 @@ export default function RightContent({
             </div>
           ) : (
             memoryItems.map((memory) => (
-              <div
-                key={memory.memory_id}
-                className="rounded-xl border bg-card p-4"
-              >
-                <p className="whitespace-pre-wrap">{memory.content}</p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {new Date(memory.created_at).toLocaleString('ja-JP')}
-                </p>
-              </div>
+              <MemoryCard
+                memory_id={memory.memory_id}
+                content={memory.content}
+                created_at={memory.created_at}
+              />
             ))
           )}
         </div>
