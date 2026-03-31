@@ -10,7 +10,7 @@ use crate::{
 pub fn router(state: AppState) -> Router<AppState> {
     let base_path = "/memory";
 
-    let delete_path = format!("{}/:memory_id", base_path);
+    let delete_path = format!("{}/{{memory_id}}", base_path);
 
     Router::new()
         .route(&base_path, post(handler::post_memory))
