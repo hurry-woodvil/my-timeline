@@ -1,22 +1,20 @@
-import { Memory } from '@/features/memory';
 import { RefreshCw } from 'lucide-react';
 import MemoryCard from './MemoryCard';
+import { useMemory } from '../page';
+import { useEffect } from 'react';
 
-type RightContentProps = {
-  isRefreshing: boolean;
-  isLoading: boolean;
-  memoryItems: Memory[];
-  handleRefresh: () => Promise<void>;
-  errorMessage: string | null;
-};
+export default function RightContent() {
+  const { items, isLoading, isRefreshing, errorMessage, fetchMemories } =
+    useMemory();
 
-export default function RightContent({
-  isRefreshing,
-  isLoading,
-  memoryItems,
-  handleRefresh,
-  errorMessage,
-}: RightContentProps) {
+  useEffect(() => {
+    void fetchMemories();
+  }, []);
+
+  const handleRefresh = async () => {
+    await fetchMemories({ silent: true });
+  };
+
   return (
     <section className="flex min-h-0 flex-1 flex-col rounded-[2rem] border border-white/40 bg-white/70 p-6 shadow-sm backdrop-blur-md">
       <header className="mb-4">
@@ -37,10 +35,6 @@ export default function RightContent({
       </header>
 
       <div className="space-y-4">
-        <div className="rounded-2xl border border-amber-100 bg-white/70 p-4">
-          <p className="text-sm text-neutral-600">今日の投稿一覧をここに表示</p>
-        </div>
-
         <div className="space-y-4">
           {isLoading ? (
             <div className="rounded-xl border bg-card p-4">
@@ -50,15 +44,16 @@ export default function RightContent({
             <div className="rounded-xl border bg-card p-4">
               <p className="text-sm text-destructive">{errorMessage}</p>
             </div>
-          ) : memoryItems.length === 0 ? (
+          ) : items.length === 0 ? (
             <div className="rounded-xl border bg-card p-4">
               <p className="text-sm text-muted-foreground">
                 No memories posted yet.
               </p>
             </div>
           ) : (
-            memoryItems.map((memory) => (
+            items.map((memory) => (
               <MemoryCard
+                key={memory.memory_id}
                 memory_id={memory.memory_id}
                 content={memory.content}
                 created_at={memory.created_at}

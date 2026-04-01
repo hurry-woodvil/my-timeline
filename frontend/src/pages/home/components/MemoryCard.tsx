@@ -1,5 +1,6 @@
 import { Button } from '@/lib/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { useMemory } from '../page';
 
 type MemoryCardProps = {
   memory_id: string;
@@ -12,8 +13,14 @@ export default function MemoryCard({
   content,
   created_at,
 }: MemoryCardProps) {
+  const { deleteHandler } = useMemory();
+
+  const buttonClick = async (memory_id: string) => {
+    await deleteHandler(memory_id);
+  };
+
   return (
-    <div key={memory_id} className="rounded-xl border bg-card p-4">
+    <div className="rounded-xl border bg-card p-4">
       <p className="whitespace-pre-wrap">{content}</p>
       <div className="flex">
         <p className="mt-2 text-sm text-muted-foreground">
@@ -23,6 +30,7 @@ export default function MemoryCard({
           variant="ghost"
           size="icon"
           className="rounded-full text-neutral-700 hover:text-red-500"
+          onClick={() => buttonClick(memory_id)}
         >
           <Trash2 className="h-5 w-5" />
         </Button>
