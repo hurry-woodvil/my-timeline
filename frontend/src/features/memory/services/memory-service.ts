@@ -5,10 +5,14 @@ import {
   MemoriesResponseData,
   MemoriesRequest,
 } from '../types';
-import { ApiClient, GetApiRequest, PostApiRequest } from '@/lib';
+import {
+  apiClient,
+  DeleteApiRequest,
+  GetApiRequest,
+  PostApiRequest,
+} from '@/lib';
 
 export async function postMemory(
-  apiClient: ApiClient,
   content: string,
 ): Promise<ApiResponse<PostMemoryResponseData>> {
   const payload: PostMemoryRequest = {
@@ -22,14 +26,12 @@ export async function postMemory(
     body: payload,
   };
 
-  const response = await apiClient.request<PostMemoryResponseData>(request);
+  const response = await apiClient<PostMemoryResponseData>(request);
 
   return response;
 }
 
-export async function memories(
-  apiClient: ApiClient,
-): Promise<ApiResponse<MemoriesResponseData>> {
+export async function memories(): Promise<ApiResponse<MemoriesResponseData>> {
   const request: GetApiRequest<MemoriesRequest> = {
     method: 'GET',
     path: 'memories',
@@ -37,7 +39,19 @@ export async function memories(
     query: {},
   };
 
-  const response = await apiClient.request<MemoriesResponseData>(request);
+  const response = await apiClient<MemoriesResponseData>(request);
+
+  return response;
+}
+
+export async function deleteMemory(memory_id: string) {
+  const request: DeleteApiRequest = {
+    method: 'DELETE',
+    path: `memory/${memory_id}`,
+    withAuth: true,
+  };
+
+  const response = await apiClient(request);
 
   return response;
 }

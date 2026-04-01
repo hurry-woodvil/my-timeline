@@ -1,4 +1,4 @@
-import { ApiClient, GetApiRequest, PostApiRequest } from '@/lib';
+import { apiClient, GetApiRequest, PostApiRequest } from '@/lib';
 import {
   ApiResponse,
   SignInRequest,
@@ -12,7 +12,6 @@ import {
 } from '../types/auth';
 
 export async function signin(
-  apiClient: ApiClient,
   email: string,
   password: string,
 ): Promise<ApiResponse<SignInResponseData>> {
@@ -28,13 +27,12 @@ export async function signin(
     body: payload,
   };
 
-  const response = await apiClient.request<SignInResponseData>(request);
+  const response = await apiClient<SignInResponseData>(request);
 
   return response;
 }
 
 export async function signup(
-  apiClient: ApiClient,
   email: string,
   password: string,
 ): Promise<ApiResponse<SignUpResponseData>> {
@@ -50,14 +48,12 @@ export async function signup(
     body: payload,
   };
 
-  const response = await apiClient.request<SignUpResponseData>(request);
+  const response = await apiClient<SignUpResponseData>(request);
 
   return response;
 }
 
-export async function signout(
-  apiClient: ApiClient,
-): Promise<ApiResponse<SignOutResponseData>> {
+export async function signout(): Promise<ApiResponse<SignOutResponseData>> {
   const payload: SignOutRequest = {};
 
   const request: GetApiRequest<SignOutRequest> = {
@@ -67,14 +63,12 @@ export async function signout(
     query: payload,
   };
 
-  const response = await apiClient.request<SignOutResponseData>(request);
+  const response = await apiClient<SignOutResponseData>(request);
 
   return response;
 }
 
-export async function refresh(
-  apiClient: ApiClient,
-): Promise<ApiResponse<RefreshResponseData>> {
+export async function refresh(): Promise<ApiResponse<RefreshResponseData>> {
   const payload: RefreshRequest = {};
 
   const request: GetApiRequest<RefreshRequest> = {
@@ -84,7 +78,7 @@ export async function refresh(
     query: payload,
   };
 
-  const response = await apiClient.request<RefreshResponseData>(request);
+  const response = await apiClient<RefreshResponseData>(request);
 
   return response;
 }

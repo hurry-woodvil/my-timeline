@@ -12,7 +12,6 @@ import {
   signup as signupService,
   signout as signoutSevice,
 } from '@/features/auth';
-import { useApp } from './AppContext';
 
 const ACCESS_TOKEN_KEY = 'access_token';
 
@@ -32,7 +31,6 @@ type AuthProviderProps = {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isInitializing, setIsInitializing] = useState(true);
-  const { apiClient } = useApp();
 
   const isAuthenticated = !!accessToken;
 
@@ -44,7 +42,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signin = async (email: string, password: string) => {
     try {
-      const result = await signinService(apiClient, email, password);
+      const result = await signinService(email, password);
 
       if (result.success) {
         const token = result.data.access_token;
@@ -60,7 +58,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signup = async (email: string, password: string) => {
     try {
-      const result = await signupService(apiClient, email, password);
+      const result = await signupService(email, password);
 
       if (result.success) {
         const token = result.data.access_token;
@@ -75,7 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   };
 
   const signout = async () => {
-    const body = await signoutSevice(apiClient);
+    const body = await signoutSevice();
 
     console.log(body.message);
 
