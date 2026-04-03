@@ -10,7 +10,11 @@ import {
 } from 'react';
 import LeftContent from './components/LeftContent';
 import RightContent from './components/RightContent';
-import { deleteMemory, memories, Memory } from '@/features/memory';
+import {
+  callDeleteMemoryApi,
+  callGetMemoriesApi,
+  Memory,
+} from '@/features/memory';
 
 type MemoryContextValue = {
   items: Memory[];
@@ -18,7 +22,6 @@ type MemoryContextValue = {
   isRefreshing: boolean;
   errorMessage: string | null;
   fetchMemories: (options?: { silent?: boolean }) => Promise<void>;
-  deleteHandler: (memory_id: string) => Promise<void>;
 };
 
 const MemoryContext = createContext<MemoryContextValue | null>(null);
@@ -45,7 +48,7 @@ function MemoryProvider({ children }: MemoryProviderProps) {
     setErrorMessage(null);
 
     try {
-      const response = await memories();
+      const response = await callGetMemoriesApi();
 
       if (!response.success) {
         setErrorMessage(response.message || 'Failed to fethc memories.');
@@ -66,7 +69,7 @@ function MemoryProvider({ children }: MemoryProviderProps) {
 
   const deleteHandler = useCallback(async (memory_id: string) => {
     try {
-      const response = await deleteMemory(memory_id);
+      const response = await callDeleteMemoryApi(memory_id);
 
       if (!response.success) {
         setErrorMessage(response.message || 'Failed to delete memory.');

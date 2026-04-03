@@ -12,7 +12,22 @@ import {
   PostApiRequest,
 } from '@/lib';
 
-export async function postMemory(
+export async function callGetMemoriesApi(): Promise<
+  ApiResponse<MemoriesResponseData>
+> {
+  const request: GetApiRequest<MemoriesRequest> = {
+    method: 'GET',
+    path: 'memories',
+    withAuth: true,
+    query: {},
+  };
+
+  const response = await apiClient<MemoriesResponseData>(request);
+
+  return response;
+}
+
+export async function callPostMemoryApi(
   content: string,
 ): Promise<ApiResponse<PostMemoryResponseData>> {
   const payload: PostMemoryRequest = {
@@ -31,20 +46,7 @@ export async function postMemory(
   return response;
 }
 
-export async function memories(): Promise<ApiResponse<MemoriesResponseData>> {
-  const request: GetApiRequest<MemoriesRequest> = {
-    method: 'GET',
-    path: 'memories',
-    withAuth: true,
-    query: {},
-  };
-
-  const response = await apiClient<MemoriesResponseData>(request);
-
-  return response;
-}
-
-export async function deleteMemory(memory_id: string) {
+export async function callDeleteMemoryApi(memory_id: string) {
   const request: DeleteApiRequest = {
     method: 'DELETE',
     path: `memory/${memory_id}`,

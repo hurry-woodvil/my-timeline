@@ -3,8 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/lib/components/ui/dialog';
 import { Textarea } from '@/lib/components/ui/textarea';
 import { X } from 'lucide-react';
 import { useState } from 'react';
-import { useMemory } from '../page';
-import { postMemory } from '@/features/memory';
+import { useMemory } from '../hooks/use-memory';
 
 type PostMemoryDialogProps = {
   isOpen: boolean;
@@ -15,12 +14,12 @@ export default function PostMemoryDialog({
   isOpen,
   setIsOpen,
 }: PostMemoryDialogProps) {
-  const { fetchMemories } = useMemory();
+  const { createMutation } = useMemory();
+
   const [content, setContent] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleClose = () => {
-    if (isSubmitting) return;
+    if (createMutation.isPending) return;
     setIsOpen(false);
   };
 
@@ -29,19 +28,12 @@ export default function PostMemoryDialog({
     if (!trimmed) return;
 
     try {
-      setIsSubmitting(true);
-
-      let result = await postMemory(content);
-      console.log(result.message);
-      console.log(result.data);
-      await fetchMemories({ silent: true });
+      await createMutation.mutateAsync({ content: trimmed });
 
       setContent('');
       setIsOpen(false);
     } catch (error) {
       console.error('failed to post memory', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -58,7 +50,7 @@ export default function PostMemoryDialog({
             onClick={handleClose}
             className="absolute right-4 top-4 inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground disabled:pointer-events-none"
             aria-label="Close"
-            disabled={isSubmitting}
+            disabled={createMutation.isPending}
           >
             <X className="h-4 w-4" />
           </button>
@@ -70,7 +62,7 @@ export default function PostMemoryDialog({
             onChange={(e) => setContent(e.target.value)}
             placeholder="What's on your mind?"
             className="min-h-40 resize-none"
-            disabled={isSubmitting}
+            disabled={createMutation.isPending}
           />
         </div>
 
@@ -78,9 +70,9 @@ export default function PostMemoryDialog({
           <Button
             type="button"
             onClick={handleSubmit}
-            disabled={isSubmitting || !content.trim()}
+            disabled={createMutation.isPending || !content.trim()}
           >
-            {isSubmitting ? 'Posting...' : 'Post'}
+            {createMutation.isPending ? 'Posting...' : 'Post'}
           </Button>
         </div>
       </DialogContent>

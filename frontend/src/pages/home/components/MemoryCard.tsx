@@ -1,6 +1,18 @@
 import { Button } from '@/lib/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import { useMemory } from '../page';
+import { Trash2, Trash2Icon } from 'lucide-react';
+import { useMemory } from '../hooks/use-memory';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 type MemoryCardProps = {
   memory_id: string;
@@ -13,11 +25,7 @@ export default function MemoryCard({
   content,
   created_at,
 }: MemoryCardProps) {
-  const { deleteHandler } = useMemory();
-
-  const buttonClick = async (memory_id: string) => {
-    await deleteHandler(memory_id);
-  };
+  const { deleteMutation } = useMemory();
 
   return (
     <div className="rounded-xl border bg-card p-4">
@@ -26,14 +34,37 @@ export default function MemoryCard({
         <p className="mt-2 text-sm text-muted-foreground">
           {new Date(created_at).toLocaleString('ja-JP')}
         </p>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full text-neutral-700 hover:text-red-500"
-          onClick={() => buttonClick(memory_id)}
-        >
-          <Trash2 className="h-5 w-5" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full text-neutral-700 hover:text-red-500"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogMedia>
+                <Trash2Icon />
+              </AlertDialogMedia>
+              <AlertDialogTitle>Delete memory?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete this memory.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                variant="destructive"
+                onClick={() => deleteMutation.mutate({ memory_id })}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
