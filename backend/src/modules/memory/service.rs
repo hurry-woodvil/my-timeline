@@ -11,6 +11,15 @@ use crate::{
     modules::memory::dto::PostMemoryRequest,
 };
 
+pub async fn fetch_memory(
+    db: &SqlitePool,
+    user: &CurrentUser,
+    memories: &MemoriesRepository,
+    memory_id: &str,
+) -> Result<Memory, AppError> {
+    memories.select_by_memory_id(&db, memory_id, &user.id).await
+}
+
 pub async fn post_memory(
     db: &SqlitePool,
     user: &CurrentUser,
