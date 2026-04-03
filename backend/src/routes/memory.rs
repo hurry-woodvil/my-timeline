@@ -1,6 +1,6 @@
 use axum::{
     Router, middleware,
-    routing::{delete, post},
+    routing::{delete, get, post},
 };
 
 use crate::{
@@ -10,9 +10,11 @@ use crate::{
 pub fn router(state: AppState) -> Router<AppState> {
     let base_path = "/memory";
 
+    let fetch_path = format!("{}/{{memory_id}}", base_path);
     let delete_path = format!("{}/{{memory_id}}", base_path);
 
     Router::new()
+        .route(&fetch_path, get(handler::fetch_memory))
         .route(&base_path, post(handler::post_memory))
         .route(&delete_path, delete(handler::delete_memory))
         .route_layer(middleware::from_fn_with_state(state, require_auth))
