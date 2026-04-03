@@ -36,3 +36,16 @@ pub async fn post_memory(
 
     Ok(memory)
 }
+
+pub async fn delete_memory(
+    db: &SqlitePool,
+    user: &CurrentUser,
+    memories: &MemoriesRepository,
+    memory_id: &str,
+) -> Result<(), AppError> {
+    memories
+        .delete_by_memory_id(&db, memory_id, &user.id)
+        .await?;
+
+    Ok(())
+}

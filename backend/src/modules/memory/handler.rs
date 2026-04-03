@@ -1,4 +1,8 @@
-use axum::{Json, extract::State, http::StatusCode};
+use axum::{
+    Json,
+    extract::{Path, State},
+    http::StatusCode,
+};
 
 use crate::{
     app_state::AppState,
@@ -38,4 +42,20 @@ pub async fn post_memory(
             },
         ),
     ))
+}
+
+pub async fn delete_memory(
+    State(state): State<AppState>,
+    current_user: CurrentUser,
+    Path(memory_id): Path<String>,
+) -> response::ApiResult<()> {
+    service::delete_memory(
+        &state.db,
+        &current_user,
+        &state.memories_repository,
+        &memory_id,
+    )
+    .await?;
+
+    Ok((StatusCode::OK, response::ok("delete memory", {})))
 }

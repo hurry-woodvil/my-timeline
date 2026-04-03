@@ -1,4 +1,7 @@
-use axum::{Router, middleware, routing::post};
+use axum::{
+    Router, middleware,
+    routing::{delete, post},
+};
 
 use crate::{
     app_state::AppState, common::auth::middleware::require_auth, modules::memory::handler,
@@ -7,7 +10,10 @@ use crate::{
 pub fn router(state: AppState) -> Router<AppState> {
     let base_path = "/memory";
 
+    let delete_path = format!("{}/{{memory_id}}", base_path);
+
     Router::new()
         .route(&base_path, post(handler::post_memory))
+        .route(&delete_path, delete(handler::delete_memory))
         .route_layer(middleware::from_fn_with_state(state, require_auth))
 }

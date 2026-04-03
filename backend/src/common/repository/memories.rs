@@ -24,6 +24,12 @@ pub trait MemoriesRepositoryTrait: Send + Sync {
         user_id: &str,
     ) -> Result<Vec<Memory>, AppError>;
     async fn insert_memory(&self, db: &SqlitePool, memory: &Memory) -> Result<(), AppError>;
+    async fn delete_by_memory_id(
+        &self,
+        db: &SqlitePool,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError>;
 }
 
 pub type MemoriesRepository = Arc<dyn MemoriesRepositoryTrait + Send + Sync>;
@@ -59,6 +65,23 @@ impl MemoriesRepositoryTrait for InMemoryMemoriesRepository {
         }
 
         Ok(())
+    }
+
+    async fn delete_by_memory_id(
+        &self,
+        _db: &SqlitePool,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError> {
+        let mut map = self.memories_by_memory_id.write().await;
+
+        match map.get(memory_id) {
+            Some(memory) if memory.user_id == user_id => {
+                map.remove(memory_id);
+                Ok(())
+            }
+            _ => Err(AppError::Internal("memory not found".to_string())),
+        }
     }
 }
 
@@ -116,5 +139,30 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
             Ok(_) => Ok(()),
             Err(e) => Err(AppError::Database(e)),
         }
+    }
+
+    async fn delete_by_memory_id(
+        &self,
+        db: &SqlitePool,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError> {
+        let result = sqlx::query(
+            r#"
+            DELETE FROM memories
+            WHERE memory_id = ? AND user_id = ?
+            "#,
+        )
+        .bind(memory_id)
+        .bind(user_id)
+        .execute(db)
+        .await
+        .map_err(AppError::Database)?;
+
+        if result.rows_affected() == 0 {
+            return Err(AppError::Internal("memory not found".to_string()));
+        }
+
+        Ok(())
     }
 }
