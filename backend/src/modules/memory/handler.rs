@@ -9,7 +9,7 @@ use crate::{
     common::response,
     extractors::current_user::CurrentUser,
     modules::memory::{
-        dto::{GetMemoryResponse, PostMemoryRequest, PostMemoryResponse},
+        dto::{GetMemoryResponse, PostMemoryRequest, PostMemoryResponse, UpdateMemoryRequest},
         service,
     },
 };
@@ -74,7 +74,17 @@ pub async fn update_memory(
     State(state): State<AppState>,
     current_user: CurrentUser,
     Path(memory_id): Path<String>,
+    Json(payload): Json<UpdateMemoryRequest>,
 ) -> response::ApiResult<()> {
+    service::update_memory(
+        &state.db,
+        &current_user,
+        &state.memories_repository,
+        &payload,
+        &memory_id,
+    )
+    .await?;
+
     Ok((StatusCode::OK, response::ok("update memory", {})))
 }
 
