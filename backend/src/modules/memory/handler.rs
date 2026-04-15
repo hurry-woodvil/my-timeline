@@ -70,6 +70,14 @@ pub async fn post_memory(
     ))
 }
 
+pub async fn update_memory(
+    State(state): State<AppState>,
+    current_user: CurrentUser,
+    Path(memory_id): Path<String>,
+) -> response::ApiResult<()> {
+    Ok((StatusCode::OK, response::ok("update memory", {})))
+}
+
 pub async fn delete_memory(
     State(state): State<AppState>,
     current_user: CurrentUser,
