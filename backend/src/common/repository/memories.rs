@@ -5,7 +5,7 @@ use chrono::{DateTime, Utc};
 use sqlx::{FromRow, Row, SqlitePool};
 use tokio::sync::RwLock;
 
-use crate::common::error::AppError;
+use crate::{common::error::AppError, modules::memory::dto::UpdateMemoryRequest};
 
 #[derive(Debug, Clone, FromRow)]
 pub struct Memory {
@@ -30,6 +30,13 @@ pub trait MemoriesRepositoryTrait: Send + Sync {
         user_id: &str,
     ) -> Result<Vec<Memory>, AppError>;
     async fn insert_memory(&self, db: &SqlitePool, memory: &Memory) -> Result<(), AppError>;
+    async fn update_memory(
+        &self,
+        db: &SqlitePool,
+        memory: &UpdateMemoryRequest,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError>;
     async fn delete_by_memory_id(
         &self,
         db: &SqlitePool,
@@ -85,6 +92,38 @@ impl MemoriesRepositoryTrait for InMemoryMemoriesRepository {
             let mut map = self.memories_by_memory_id.write().await;
             map.insert(memory.memory_id.clone(), memory.clone());
         }
+
+        Ok(())
+    }
+
+    async fn update_memory(
+        &self,
+        _db: &SqlitePool,
+        memory: &UpdateMemoryRequest,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError> {
+        if memory.content.is_none() {
+            return Err(AppError::Internal("No filed to update.".into()));
+        }
+
+        let mut memories = self.memories_by_memory_id.write().await;
+
+        let target = memories
+            .get_mut(memory_id)
+            .ok_or_else(|| AppError::Internal("Memory not found.".into()))?;
+
+        if target.user_id != user_id {
+            return Err(AppError::Internal("Memory not found.".into()));
+        }
+
+        if let Some(con) = &memory.content {
+            let trimmed = con.trim();
+
+            target.content = trimmed.to_string();
+        }
+
+        target.updated_at = Utc::now();
 
         Ok(())
     }
@@ -204,6 +243,45 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
             Ok(_) => Ok(()),
             Err(e) => Err(AppError::Database(e)),
         }
+    }
+
+    async fn update_memory(
+        &self,
+        db: &SqlitePool,
+        memory: &UpdateMemoryRequest,
+        memory_id: &str,
+        user_id: &str,
+    ) -> Result<(), AppError> {
+        if memory.content.is_none() {
+            return Err(AppError::Internal("No fields to update.".into()));
+        }
+
+        let mut sets = Vec::new();
+
+        if memory.content.is_some() {
+            sets.push("content = ?");
+        }
+
+        sets.push("updated_at = ?");
+
+        let sql = format!(
+            "UPDATE memories SET {} WHERE memory_id = ? AND user_id = ?",
+            sets.join(", ")
+        );
+
+        let mut query = sqlx::query(&sql);
+
+        if let Some(con) = &memory.content {
+            query = query.bind(con);
+        }
+
+        let now = Utc::now();
+
+        query = query.bind(now).bind(memory_id).bind(user_id);
+
+        query.execute(db).await?;
+
+        Ok(())
     }
 
     async fn delete_by_memory_id(
