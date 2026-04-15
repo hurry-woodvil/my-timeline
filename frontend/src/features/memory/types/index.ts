@@ -14,6 +14,12 @@ export type MemoriesResponseData = {
   items: Memory[];
 };
 
+export type MemoryResponseData = {
+  memory_id: string;
+  content: string;
+  created_at: string;
+};
+
 export type Memory = {
   memory_id: string;
   content: string;

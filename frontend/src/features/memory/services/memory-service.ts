@@ -4,6 +4,7 @@ import {
   PostMemoryResponseData,
   MemoriesResponseData,
   MemoriesRequest,
+  MemoryResponseData,
 } from '../types';
 import {
   apiClient,
@@ -11,6 +12,20 @@ import {
   GetApiRequest,
   PostApiRequest,
 } from '@/lib';
+
+export async function callGetMemoryApi(
+  memory_id: string,
+): Promise<ApiResponse<MemoryResponseData>> {
+  const request: GetApiRequest = {
+    method: 'GET',
+    path: `memory/${memory_id}`,
+    withAuth: true,
+  };
+
+  const response = await apiClient<MemoryResponseData>(request);
+
+  return response;
+}
 
 export async function callGetMemoriesApi(): Promise<
   ApiResponse<MemoriesResponseData>

@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Link } from 'react-router-dom';
 
 type MemoryCardProps = {
   memory_id: string;
@@ -29,11 +30,13 @@ export default function MemoryCard({
 
   return (
     <div className="rounded-xl border bg-card p-4">
-      <p className="whitespace-pre-wrap">{content}</p>
-      <div className="flex">
+      <Link to={`/memory/${memory_id}`} className="block">
+        <p className="whitespace-pre-wrap">{content}</p>
         <p className="mt-2 text-sm text-muted-foreground">
           {new Date(created_at).toLocaleString('ja-JP')}
         </p>
+      </Link>
+      <div className="mt-2 flex justify-end">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button

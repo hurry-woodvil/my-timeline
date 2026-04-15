@@ -1,6 +1,6 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { RootLayout, AuthLayout } from '@/layouts';
-import { AuthPage, HomePage } from '@/pages';
+import { AuthPage, HomePage, MemoryDetailPage } from '@/pages';
 import GuestRoute from './GuestRoute';
 import ProtectedRoute from './ProtectedRoute';
 
@@ -14,6 +14,14 @@ export default function AppRouter() {
           element: (
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          ),
+        },
+        {
+          path: '/memory/:memory_id',
+          element: (
+            <ProtectedRoute>
+              <MemoryDetailPage />
             </ProtectedRoute>
           ),
         },
