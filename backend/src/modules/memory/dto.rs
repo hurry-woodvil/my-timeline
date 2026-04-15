@@ -13,6 +13,11 @@ pub struct PostMemoryRequest {
     pub content: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct UpdateMemoryRequest {
+    pub content: Option<String>,
+}
+
 #[derive(Debug, Serialize)]
 pub struct PostMemoryResponse {
     pub memory_id: String,
