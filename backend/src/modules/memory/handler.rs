@@ -9,10 +9,36 @@ use crate::{
     common::response,
     extractors::current_user::CurrentUser,
     modules::memory::{
-        dto::{PostMemoryRequest, PostMemoryResponse},
+        dto::{GetMemoryResponse, PostMemoryRequest, PostMemoryResponse},
         service,
     },
 };
+
+pub async fn fetch_memory(
+    State(state): State<AppState>,
+    current_user: CurrentUser,
+    Path(memory_id): Path<String>,
+) -> response::ApiResult<GetMemoryResponse> {
+    let result = service::fetch_memory(
+        &state.db,
+        &current_user,
+        &state.memories_repository,
+        &memory_id,
+    )
+    .await?;
+
+    Ok((
+        StatusCode::OK,
+        response::ok(
+            "get memory",
+            GetMemoryResponse {
+                memory_id: result.memory_id,
+                content: result.content,
+                created_at: result.created_at,
+            },
+        ),
+    ))
+}
 
 pub async fn post_memory(
     State(state): State<AppState>,
