@@ -8,7 +8,7 @@ use crate::{
         repository::memories::{MemoriesRepository, Memory},
     },
     extractors::current_user::CurrentUser,
-    modules::memory::dto::PostMemoryRequest,
+    modules::memory::dto::{PostMemoryRequest, UpdateMemoryRequest},
 };
 
 pub async fn fetch_memory(
@@ -44,6 +44,20 @@ pub async fn post_memory(
     memories.insert_memory(&db, &memory).await?;
 
     Ok(memory)
+}
+
+pub async fn update_memory(
+    db: &SqlitePool,
+    user: &CurrentUser,
+    memories: &MemoriesRepository,
+    memory: &UpdateMemoryRequest,
+    memory_id: &str,
+) -> Result<(), AppError> {
+    memories
+        .update_memory(&db, memory, memory_id, &user.id)
+        .await?;
+
+    Ok(())
 }
 
 pub async fn delete_memory(
