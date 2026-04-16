@@ -3,7 +3,11 @@ use serde::Serialize;
 
 #[derive(Debug, Clone, Serialize)]
 pub struct Memory {
-    pub memory_id: String,
-    pub content: String,
-    pub created_at: DateTime<Utc>,
+    pub id: Option<String>,
+    pub user_id: String,
+    pub content: Option<String>,
+    pub is_clip: Option<bool>,
+    pub tags: Option<Vec<String>>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: DateTime<Utc>,
 }

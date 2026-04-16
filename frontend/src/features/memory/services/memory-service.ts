@@ -13,20 +13,6 @@ import {
   PostApiRequest,
 } from '@/lib';
 
-export async function callGetMemoryApi(
-  memory_id: string,
-): Promise<ApiResponse<MemoryResponseData>> {
-  const request: GetApiRequest = {
-    method: 'GET',
-    path: `memory/${memory_id}`,
-    withAuth: true,
-  };
-
-  const response = await apiClient<MemoryResponseData>(request);
-
-  return response;
-}
-
 export async function callGetMemoriesApi(): Promise<
   ApiResponse<MemoriesResponseData>
 > {
@@ -42,6 +28,20 @@ export async function callGetMemoriesApi(): Promise<
   return response;
 }
 
+export async function callGetMemoryApi(
+  memory_id: string,
+): Promise<ApiResponse<MemoryResponseData>> {
+  const request: GetApiRequest = {
+    method: 'GET',
+    path: `memories/${memory_id}`,
+    withAuth: true,
+  };
+
+  const response = await apiClient<MemoryResponseData>(request);
+
+  return response;
+}
+
 export async function callPostMemoryApi(
   content: string,
 ): Promise<ApiResponse<PostMemoryResponseData>> {
@@ -51,7 +51,7 @@ export async function callPostMemoryApi(
 
   const request: PostApiRequest<PostMemoryRequest> = {
     method: 'POST',
-    path: '/memory',
+    path: '/memories',
     withAuth: true,
     body: payload,
   };
@@ -64,7 +64,7 @@ export async function callPostMemoryApi(
 export async function callDeleteMemoryApi(memory_id: string) {
   const request: DeleteApiRequest = {
     method: 'DELETE',
-    path: `memory/${memory_id}`,
+    path: `memories/${memory_id}`,
     withAuth: true,
   };
 

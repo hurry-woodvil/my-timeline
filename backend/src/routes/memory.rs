@@ -17,7 +17,7 @@ pub fn router(state: AppState) -> Router<AppState> {
     Router::new()
         .route(&fetch_path, get(handler::fetch_memory))
         .route(&base_path, post(handler::post_memory))
-        .route(&update_path, patch(handler::update_memory))
+        .route(&update_path, patch(handler::patch_memory))
         .route(&delete_path, delete(handler::delete_memory))
         .route_layer(middleware::from_fn_with_state(state, require_auth))
 }

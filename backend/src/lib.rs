@@ -78,7 +78,6 @@ pub async fn run() {
     let app = Router::new()
         .merge(routes::auth::router())
         .merge(routes::users::router(state.clone()))
-        .merge(routes::memory::router(state.clone()))
         .merge(routes::memories::router(state.clone()))
         .layer(cors)
         .with_state(state);
