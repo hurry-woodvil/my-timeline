@@ -64,6 +64,8 @@ pub async fn create_memory(
     let created_at = memory.created_at.unwrap();
     let updated_at = memory.updated_at;
 
+    println!("id:{}", id);
+
     let record = Record {
         id,
         user_id,
@@ -79,17 +81,19 @@ pub async fn create_memory(
         .select_by_memory_id(db, &record.id, &record.user_id)
         .await?;
 
-    let memory = Memory {
+    let new_memory = Memory {
         id: Some(result.id.clone()),
         user_id: result.user_id.clone(),
         content: result.content.clone(),
         is_clip: result.is_clip,
-        tags: None,
+        tags: vec![].into(),
         created_at: Some(result.created_at),
         updated_at: result.updated_at,
     };
 
-    Ok(memory)
+    println!("new_id:{}", new_memory.id.as_ref().unwrap());
+
+    Ok(new_memory)
 }
 
 pub async fn update_memory(

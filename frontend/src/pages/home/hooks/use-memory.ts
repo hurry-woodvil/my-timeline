@@ -23,8 +23,15 @@ export function useMemory() {
   };
 
   const createMemory = async (content: string) => {
+    const now = new Date();
     try {
-      let result = await callPostMemoryApi(content);
+      let result = await callPostMemoryApi(
+        content,
+        false,
+        [],
+        now.toISOString(),
+        now.toISOString(),
+      );
 
       if (!result.success) {
         throw new Error(result.message);

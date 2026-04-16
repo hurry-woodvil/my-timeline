@@ -28,6 +28,7 @@ pub struct GetMemoryResponseBodyData {
 
 // POST /memories
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PostMemoryRequestPayload {
     pub content: String,
     pub is_clip: bool,

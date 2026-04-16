@@ -84,7 +84,7 @@ impl MemoriesRepositoryTrait for InMemoryMemoriesRepository {
 
     async fn insert_memory(&self, _db: &SqlitePool, memory: &Record) -> Result<(), AppError> {
         let mut map = self.memories_by_memory_id.write().await;
-        map.insert(memory.id.clone(), memory.clone()).unwrap();
+        map.insert(memory.id.clone(), memory.clone());
 
         Ok(())
     }
