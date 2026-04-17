@@ -17,6 +17,7 @@ pub struct GetMemoriesResponseBodyData {
 pub struct GetMemoryRequestPayload {}
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetMemoryResponseBodyData {
     pub id: String,
     pub content: String,
@@ -38,6 +39,7 @@ pub struct PostMemoryRequestPayload {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PostMemoryResponseBodyData {
     pub id: String,
     pub content: String,
@@ -58,6 +60,7 @@ pub struct DeleteMemoryResponseBodyData {
 
 // PATCH /memories/{id}
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PatchMemoryRequestPayload {
     pub content: Option<String>,
     pub is_clip: Option<bool>,
@@ -66,6 +69,7 @@ pub struct PatchMemoryRequestPayload {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PatchMemoryResponseBodyData {
     pub id: String,
     pub content: Option<String>,
