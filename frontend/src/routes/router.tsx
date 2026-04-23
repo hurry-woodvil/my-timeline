@@ -18,7 +18,7 @@ export default function AppRouter() {
           ),
         },
         {
-          path: '/memory/:memory_id',
+          path: '/memory/:memoryId',
           element: (
             <ProtectedRoute>
               <MemoryDetailPage />

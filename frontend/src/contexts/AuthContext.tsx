@@ -45,7 +45,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const result = await signinService(email, password);
 
       if (result.success) {
-        const token = result.data.access_token;
+        const token = result.data.accessToken;
         setToken(token);
       } else {
         throw new Error(result.message);
@@ -61,7 +61,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       const result = await signupService(email, password);
 
       if (result.success) {
-        const token = result.data.access_token;
+        const token = result.data.accessToken;
         setToken(token);
       } else {
         throw new Error(result.message);

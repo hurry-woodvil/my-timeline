@@ -8,10 +8,10 @@ use tokio::sync::RwLock;
 use crate::common::error::AppError;
 
 #[derive(Debug, Clone, FromRow)]
-pub struct Memory {
-    pub memory_id: String,
+pub struct Record {
+    pub id: String,
     pub user_id: String,
-    pub content: String,
+    pub content: Option<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -23,13 +23,14 @@ pub trait MemoriesRepositoryTrait: Send + Sync {
         db: &SqlitePool,
         memory_id: &str,
         user_id: &str,
-    ) -> Result<Memory, AppError>;
+    ) -> Result<Record, AppError>;
     async fn select_by_user_id(
         &self,
         db: &SqlitePool,
         user_id: &str,
-    ) -> Result<Vec<Memory>, AppError>;
-    async fn insert_memory(&self, db: &SqlitePool, memory: &Memory) -> Result<(), AppError>;
+    ) -> Result<Vec<Record>, AppError>;
+    async fn insert_memory(&self, db: &SqlitePool, memory: &Record) -> Result<(), AppError>;
+    async fn update_memory(&self, db: &SqlitePool, memory: &Record) -> Result<(), AppError>;
     async fn delete_by_memory_id(
         &self,
         db: &SqlitePool,
@@ -41,7 +42,7 @@ pub trait MemoriesRepositoryTrait: Send + Sync {
 pub type MemoriesRepository = Arc<dyn MemoriesRepositoryTrait + Send + Sync>;
 
 pub struct InMemoryMemoriesRepository {
-    pub memories_by_memory_id: RwLock<HashMap<String, Memory>>,
+    pub memories_by_memory_id: RwLock<HashMap<String, Record>>,
 }
 
 #[async_trait]
@@ -51,7 +52,7 @@ impl MemoriesRepositoryTrait for InMemoryMemoriesRepository {
         _db: &SqlitePool,
         memory_id: &str,
         _user_id: &str,
-    ) -> Result<Memory, AppError> {
+    ) -> Result<Record, AppError> {
         let map = self.memories_by_memory_id.read().await;
 
         let memory = map.get(memory_id);
@@ -66,10 +67,10 @@ impl MemoriesRepositoryTrait for InMemoryMemoriesRepository {
         &self,
         _db: &SqlitePool,
         user_id: &str,
-    ) -> Result<Vec<Memory>, AppError> {
+    ) -> Result<Vec<Record>, AppError> {
         let map = self.memories_by_memory_id.read().await;
 
-        let mut memories: Vec<Memory> = map
+        let mut memories: Vec<Record> = map
             .values()
             .filter(|m| m.user_id == user_id)
             .cloned()
@@ -80,11 +81,35 @@ impl MemoriesRepositoryTrait for InMemoryMemoriesRepository {
         Ok(memories)
     }
 
-    async fn insert_memory(&self, _db: &SqlitePool, memory: &Memory) -> Result<(), AppError> {
-        {
-            let mut map = self.memories_by_memory_id.write().await;
-            map.insert(memory.memory_id.clone(), memory.clone());
+    async fn insert_memory(&self, _db: &SqlitePool, memory: &Record) -> Result<(), AppError> {
+        let mut map = self.memories_by_memory_id.write().await;
+        map.insert(memory.id.clone(), memory.clone());
+
+        Ok(())
+    }
+
+    async fn update_memory(&self, _db: &SqlitePool, memory: &Record) -> Result<(), AppError> {
+        if memory.content.is_none() {
+            return Err(AppError::Internal("No filed to update.".into()));
         }
+
+        let mut memories = self.memories_by_memory_id.write().await;
+
+        let target = memories
+            .get_mut(&memory.id)
+            .ok_or_else(|| AppError::Internal("Memory not found.".into()))?;
+
+        if target.user_id != memory.user_id {
+            return Err(AppError::Internal("Memory not found.".into()));
+        }
+
+        if let Some(con) = &memory.content {
+            let trimmed = con.trim();
+
+            target.content = Some(trimmed.to_string());
+        }
+
+        target.updated_at = memory.updated_at;
 
         Ok(())
     }
@@ -116,7 +141,7 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
         db: &SqlitePool,
         memory_id: &str,
         user_id: &str,
-    ) -> Result<Memory, AppError> {
+    ) -> Result<Record, AppError> {
         let row = sqlx::query(
             r#"
             SELECT
@@ -139,14 +164,14 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
             return Err(AppError::Internal("memory not found".to_string()));
         };
 
-        let memory_id: String = row.get("memory_id");
+        let id: String = row.get("id");
         let user_id: String = row.get("user_id");
-        let content: String = row.get("content");
+        let content: Option<String> = Some(row.get("content"));
         let created_at: DateTime<Utc> = row.get("created_at");
         let updated_at: DateTime<Utc> = row.get("updated_at");
 
-        Ok(Memory {
-            memory_id,
+        Ok(Record {
+            id,
             user_id,
             content,
             created_at,
@@ -158,11 +183,11 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
         &self,
         db: &SqlitePool,
         user_id: &str,
-    ) -> Result<Vec<Memory>, AppError> {
-        let memories = sqlx::query_as::<_, Memory>(
+    ) -> Result<Vec<Record>, AppError> {
+        let memories = sqlx::query_as::<_, Record>(
             r#"
             SELECT
-                memory_id,
+                id,
                 user_id,
                 content,
                 created_at,
@@ -179,7 +204,7 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
         Ok(memories)
     }
 
-    async fn insert_memory(&self, db: &SqlitePool, memory: &Memory) -> Result<(), AppError> {
+    async fn insert_memory(&self, db: &SqlitePool, memory: &Record) -> Result<(), AppError> {
         let result = sqlx::query(
             r#"
             INSERT INTO memories (
@@ -189,10 +214,10 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
                 created_at,
                 updated_at
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
             "#,
         )
-        .bind(&memory.memory_id)
+        .bind(&memory.id)
         .bind(&memory.user_id)
         .bind(&memory.content)
         .bind(&memory.created_at)
@@ -204,6 +229,40 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
             Ok(_) => Ok(()),
             Err(e) => Err(AppError::Database(e)),
         }
+    }
+
+    async fn update_memory(&self, db: &SqlitePool, memory: &Record) -> Result<(), AppError> {
+        if memory.content.is_none() {
+            return Err(AppError::Internal("No fields to update.".into()));
+        }
+
+        let mut sets = Vec::new();
+
+        if memory.content.is_some() {
+            sets.push("content = ?");
+        }
+
+        sets.push("updated_at = ?");
+
+        let sql = format!(
+            "UPDATE memories SET {} WHERE id = ? AND user_id = ?",
+            sets.join(", ")
+        );
+
+        let mut query = sqlx::query(&sql);
+
+        if let Some(content) = &memory.content {
+            query = query.bind(content);
+        }
+
+        query = query
+            .bind(&memory.updated_at)
+            .bind(&memory.id)
+            .bind(&memory.user_id);
+
+        query.execute(db).await?;
+
+        Ok(())
     }
 
     async fn delete_by_memory_id(

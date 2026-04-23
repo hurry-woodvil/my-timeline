@@ -7,6 +7,7 @@ pub struct SigninRequest {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SigninResponse {
     pub access_token: String,
 }
@@ -18,6 +19,7 @@ pub struct SignupRequest {
 }
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SignupResponse {
     pub access_token: String,
 }
@@ -26,6 +28,7 @@ pub struct SignupResponse {
 pub struct SignoutResponse {}
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RefreshResponse {
     pub access_token: String,
 }

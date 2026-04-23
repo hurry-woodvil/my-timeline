@@ -1,74 +1,112 @@
 import { ApiResponse } from '@/features/auth';
 import {
-  PostMemoryRequest,
-  PostMemoryResponseData,
-  MemoriesResponseData,
-  MemoriesRequest,
-  MemoryResponseData,
+  GetMemoriesRequestPayload,
+  GetMemoriesResponseBodyData,
+  GetMemoryRequestPayload,
+  GetMemoryResponseBodyData,
+  PostMemoryRequestPayload,
+  PostMemoryResponseBodyData,
+  DeleteMemoryRequestPayload,
+  DeleteMemoryResponseBodyData,
+  PatchMemoryRequestPayload,
+  PatchMemoryResponseBodyData,
 } from '../types';
 import {
   apiClient,
   DeleteApiRequest,
   GetApiRequest,
+  PatchApiRequest,
   PostApiRequest,
 } from '@/lib';
 
-export async function callGetMemoryApi(
-  memory_id: string,
-): Promise<ApiResponse<MemoryResponseData>> {
-  const request: GetApiRequest = {
-    method: 'GET',
-    path: `memory/${memory_id}`,
-    withAuth: true,
-  };
-
-  const response = await apiClient<MemoryResponseData>(request);
-
-  return response;
-}
-
 export async function callGetMemoriesApi(): Promise<
-  ApiResponse<MemoriesResponseData>
+  ApiResponse<GetMemoriesResponseBodyData>
 > {
-  const request: GetApiRequest<MemoriesRequest> = {
+  const request: GetApiRequest<GetMemoriesRequestPayload> = {
     method: 'GET',
     path: 'memories',
     withAuth: true,
     query: {},
   };
 
-  const response = await apiClient<MemoriesResponseData>(request);
+  const response = await apiClient<GetMemoriesResponseBodyData>(request);
+
+  return response;
+}
+
+export async function callGetMemoryApi(
+  memoryId: string,
+): Promise<ApiResponse<GetMemoryResponseBodyData>> {
+  const request: GetApiRequest<GetMemoryRequestPayload> = {
+    method: 'GET',
+    path: `memories/${memoryId}`,
+    withAuth: true,
+    query: {},
+  };
+
+  const response = await apiClient<GetMemoryResponseBodyData>(request);
 
   return response;
 }
 
 export async function callPostMemoryApi(
   content: string,
-): Promise<ApiResponse<PostMemoryResponseData>> {
-  const payload: PostMemoryRequest = {
+  createdAt: string,
+  updatedAt: string,
+): Promise<ApiResponse<PostMemoryResponseBodyData>> {
+  const payload: PostMemoryRequestPayload = {
     content,
+    createdAt,
+    updatedAt,
   };
 
-  const request: PostApiRequest<PostMemoryRequest> = {
+  const request: PostApiRequest<PostMemoryRequestPayload> = {
     method: 'POST',
-    path: '/memory',
+    path: '/memories',
     withAuth: true,
     body: payload,
   };
 
-  const response = await apiClient<PostMemoryResponseData>(request);
+  const response = await apiClient<PostMemoryResponseBodyData>(request);
 
   return response;
 }
 
-export async function callDeleteMemoryApi(memory_id: string) {
-  const request: DeleteApiRequest = {
+export async function callDeleteMemoryApi(
+  memoryId: string,
+): Promise<ApiResponse<DeleteMemoryResponseBodyData>> {
+  const request: DeleteApiRequest<DeleteMemoryRequestPayload> = {
     method: 'DELETE',
-    path: `memory/${memory_id}`,
+    path: `memories/${memoryId}`,
     withAuth: true,
+    query: {},
   };
 
-  const response = await apiClient(request);
+  const response = await apiClient<DeleteMemoryResponseBodyData>(request);
+
+  return response;
+}
+
+export async function callPatchMemoryApi(
+  memoryId: string,
+  updatedAt: string,
+  props: {
+    content: string | null;
+  },
+): Promise<ApiResponse<PatchMemoryResponseBodyData>> {
+  const payload: PatchMemoryRequestPayload = {
+    content: props.content,
+    updatedAt,
+  };
+
+  const request: PatchApiRequest<PatchMemoryRequestPayload> = {
+    method: 'PATCH',
+    path: `memories/${memoryId}`,
+    withAuth: true,
+    body: payload,
+  };
+
+  const response = await apiClient<PatchMemoryResponseBodyData>(request);
 
   return response;
 }

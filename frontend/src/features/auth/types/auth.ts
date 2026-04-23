@@ -5,7 +5,7 @@ export type ApiResponse<T> = {
 };
 
 export type AuthToken = {
-  access_token: string;
+  accessToken: string;
 };
 
 export type SignInRequest = {

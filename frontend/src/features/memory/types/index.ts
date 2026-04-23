@@ -1,27 +1,54 @@
-export type PostMemoryRequest = {
-  content: string;
-};
+// GET /memories
+export type GetMemoriesRequestPayload = {};
 
-export type PostMemoryResponseData = {
-  memory_id: string;
-  content: string;
-  created_at: string;
-};
-
-export type MemoriesRequest = {};
-
-export type MemoriesResponseData = {
+export type GetMemoriesResponseBodyData = {
   items: Memory[];
 };
 
-export type MemoryResponseData = {
-  memory_id: string;
+// GET /memories/{id}
+export type GetMemoryRequestPayload = {};
+
+export type GetMemoryResponseBodyData = {
+  id: string;
   content: string;
-  created_at: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// POST /memories
+export type PostMemoryRequestPayload = {
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type PostMemoryResponseBodyData = {
+  id: string;
+  content: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+// DELETE /memories/{id}
+export type DeleteMemoryRequestPayload = {};
+
+export type DeleteMemoryResponseBodyData = {
+  id: string;
+};
+
+// PATCH /memories/{id}
+export type PatchMemoryRequestPayload = {
+  content: string | null;
+  updatedAt: string;
+};
+
+export type PatchMemoryResponseBodyData = {
+  content?: string;
 };
 
 export type Memory = {
-  memory_id: string;
+  id: string;
   content: string;
-  created_at: string;
+  createdAt: string;
+  updatedAt: string;
 };

@@ -23,8 +23,13 @@ export function useMemory() {
   };
 
   const createMemory = async (content: string) => {
+    const now = new Date();
     try {
-      let result = await callPostMemoryApi(content);
+      let result = await callPostMemoryApi(
+        content,
+        now.toISOString(),
+        now.toISOString(),
+      );
 
       if (!result.success) {
         throw new Error(result.message);
@@ -34,9 +39,9 @@ export function useMemory() {
     }
   };
 
-  const deleteMemory = async (memory_id: string) => {
+  const deleteMemory = async (memoryId: string) => {
     try {
-      let result = await callDeleteMemoryApi(memory_id);
+      let result = await callDeleteMemoryApi(memoryId);
 
       if (!result.success) {
         throw new Error(result.message);
@@ -62,8 +67,8 @@ export function useMemory() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: ({ memory_id }: { memory_id: string }) => {
-      return deleteMemory(memory_id);
+    mutationFn: ({ memoryId: memoryId }: { memoryId: string }) => {
+      return deleteMemory(memoryId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['memories'] });
