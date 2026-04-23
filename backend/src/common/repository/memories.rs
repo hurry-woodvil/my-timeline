@@ -12,7 +12,6 @@ pub struct Record {
     pub id: String,
     pub user_id: String,
     pub content: Option<String>,
-    pub is_clip: Option<bool>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -168,7 +167,6 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
         let id: String = row.get("id");
         let user_id: String = row.get("user_id");
         let content: Option<String> = Some(row.get("content"));
-        let is_clip: Option<bool> = Some(row.get("is_clip"));
         let created_at: DateTime<Utc> = row.get("created_at");
         let updated_at: DateTime<Utc> = row.get("updated_at");
 
@@ -176,7 +174,6 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
             id,
             user_id,
             content,
-            is_clip,
             created_at,
             updated_at,
         })
@@ -193,7 +190,6 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
                 id,
                 user_id,
                 content,
-                is_clip,
                 created_at,
                 updated_at
             FROM memories
@@ -215,7 +211,6 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
                 memory_id,
                 user_id,
                 content,
-                is_clip,
                 created_at,
                 updated_at
             )
@@ -225,7 +220,6 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
         .bind(&memory.id)
         .bind(&memory.user_id)
         .bind(&memory.content)
-        .bind(&memory.is_clip)
         .bind(&memory.created_at)
         .bind(&memory.updated_at)
         .execute(db)
@@ -248,10 +242,6 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
             sets.push("content = ?");
         }
 
-        if memory.is_clip.is_some() {
-            sets.push("is_clip = ?")
-        }
-
         sets.push("updated_at = ?");
 
         let sql = format!(
@@ -263,10 +253,6 @@ impl MemoriesRepositoryTrait for InDatabaseMemoriesRepository {
 
         if let Some(content) = &memory.content {
             query = query.bind(content);
-        }
-
-        if let Some(is_clip) = &memory.is_clip {
-            query = query.bind(is_clip);
         }
 
         query = query

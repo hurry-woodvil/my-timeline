@@ -8,6 +8,7 @@ use crate::modules::memories::model::Memory;
 pub struct GetMemoriesRequestPayload {}
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct GetMemoriesResponseBodyData {
     pub items: Vec<Memory>,
 }
@@ -21,8 +22,6 @@ pub struct GetMemoryRequestPayload {}
 pub struct GetMemoryResponseBodyData {
     pub id: String,
     pub content: String,
-    pub is_clip: bool,
-    pub tags: Vec<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -32,8 +31,6 @@ pub struct GetMemoryResponseBodyData {
 #[serde(rename_all = "camelCase")]
 pub struct PostMemoryRequestPayload {
     pub content: String,
-    pub is_clip: bool,
-    pub tags: Vec<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -43,8 +40,6 @@ pub struct PostMemoryRequestPayload {
 pub struct PostMemoryResponseBodyData {
     pub id: String,
     pub content: String,
-    pub is_clip: bool,
-    pub tags: Vec<String>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -63,17 +58,12 @@ pub struct DeleteMemoryResponseBodyData {
 #[serde(rename_all = "camelCase")]
 pub struct PatchMemoryRequestPayload {
     pub content: Option<String>,
-    pub is_clip: Option<bool>,
-    pub tags: Option<Vec<String>>,
     pub updated_at: DateTime<Utc>,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PatchMemoryResponseBodyData {
-    pub id: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub content: Option<String>,
-    pub is_clip: Option<bool>,
-    pub tags: Option<Vec<String>>,
-    pub updated_at: DateTime<Utc>,
 }

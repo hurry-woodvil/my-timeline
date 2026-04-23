@@ -14,26 +14,27 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Link } from 'react-router-dom';
+import { formatUtcToLocalTime } from '@/lib/utils';
 
 type MemoryCardProps = {
-  memory_id: string;
+  memoryId: string;
   content: string;
-  created_at: string;
+  createdAt: string;
 };
 
 export default function MemoryCard({
-  memory_id,
+  memoryId,
   content,
-  created_at,
+  createdAt,
 }: MemoryCardProps) {
   const { deleteMutation } = useMemory();
 
   return (
     <div className="rounded-xl border bg-card p-4">
-      <Link to={`/memory/${memory_id}`} className="block">
+      <Link to={`/memory/${memoryId}`} className="block">
         <p className="whitespace-pre-wrap">{content}</p>
         <p className="mt-2 text-sm text-muted-foreground">
-          {new Date(created_at).toLocaleString('ja-JP')}
+          {formatUtcToLocalTime(createdAt)}
         </p>
       </Link>
       <div className="mt-2 flex justify-end">
@@ -61,7 +62,7 @@ export default function MemoryCard({
               <AlertDialogCancel variant="outline">Cancel</AlertDialogCancel>
               <AlertDialogAction
                 variant="destructive"
-                onClick={() => deleteMutation.mutate({ memory_id })}
+                onClick={() => deleteMutation.mutate({ memoryId })}
               >
                 Delete
               </AlertDialogAction>

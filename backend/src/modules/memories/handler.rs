@@ -44,18 +44,14 @@ pub async fn get_memory(
     let memory =
         service::fetch_memory(&state.db, &state.memories_repository, memory_id, user_id).await?;
 
-    let id = memory.id.unwrap();
-    let content = memory.content.unwrap();
-    let is_clip = memory.is_clip.unwrap();
-    let tags = memory.tags.unwrap();
-    let created_at = memory.created_at.unwrap();
+    let id = memory.id.unwrap_or_default();
+    let content = memory.content.unwrap_or_default();
+    let created_at = memory.created_at.unwrap_or_default();
     let updated_at = memory.updated_at;
 
     let response_body_data = GetMemoryResponseBodyData {
         id,
         content,
-        is_clip,
-        tags,
         created_at,
         updated_at,
     };
@@ -74,8 +70,6 @@ pub async fn post_memory(
     let id = None;
     let user_id = current_user.id;
     let content = Some(payload.content);
-    let is_clip = Some(payload.is_clip);
-    let tags = Some(payload.tags);
     let created_at = Some(payload.created_at);
     let updated_at = payload.updated_at;
 
@@ -83,8 +77,6 @@ pub async fn post_memory(
         id,
         user_id,
         content,
-        is_clip,
-        tags,
         created_at,
         updated_at,
     };
@@ -93,16 +85,12 @@ pub async fn post_memory(
 
     let id = result.id.unwrap().clone();
     let content = result.content.unwrap().clone();
-    let is_clip = result.is_clip.unwrap().clone();
-    let tags = result.tags.unwrap().clone();
     let created_at = result.created_at.unwrap().clone();
     let updated_at = result.updated_at.clone();
 
     let response_body_data = PostMemoryResponseBodyData {
         id,
         content,
-        is_clip,
-        tags,
         created_at,
         updated_at,
     };
@@ -122,8 +110,6 @@ pub async fn patch_memory(
     let id = Some(id);
     let user_id = current_user.id;
     let content = payload.content;
-    let is_clip = payload.is_clip;
-    let tags = payload.tags;
     let created_at = None;
     let updated_at = payload.updated_at;
 
@@ -131,27 +117,15 @@ pub async fn patch_memory(
         id,
         user_id,
         content,
-        is_clip,
-        tags,
         created_at,
         updated_at,
     };
 
     let result = service::update_memory(&state.db, &state.memories_repository, &memory).await?;
 
-    let id = result.id.unwrap();
     let content = result.content;
-    let is_clip = result.is_clip;
-    let tags = result.tags;
-    let updated_at = result.updated_at;
 
-    let response_body_data = PatchMemoryResponseBodyData {
-        id,
-        content,
-        is_clip,
-        tags,
-        updated_at,
-    };
+    let response_body_data = PatchMemoryResponseBodyData { content };
 
     Ok((
         StatusCode::OK,

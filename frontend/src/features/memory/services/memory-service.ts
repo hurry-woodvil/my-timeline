@@ -35,11 +35,11 @@ export async function callGetMemoriesApi(): Promise<
 }
 
 export async function callGetMemoryApi(
-  memory_id: string,
+  memoryId: string,
 ): Promise<ApiResponse<GetMemoryResponseBodyData>> {
   const request: GetApiRequest<GetMemoryRequestPayload> = {
     method: 'GET',
-    path: `memories/${memory_id}`,
+    path: `memories/${memoryId}`,
     withAuth: true,
     query: {},
   };
@@ -51,15 +51,11 @@ export async function callGetMemoryApi(
 
 export async function callPostMemoryApi(
   content: string,
-  isClip: boolean,
-  tags: string[],
   createdAt: string,
   updatedAt: string,
 ): Promise<ApiResponse<PostMemoryResponseBodyData>> {
   const payload: PostMemoryRequestPayload = {
     content,
-    isClip,
-    tags,
     createdAt,
     updatedAt,
   };
@@ -77,11 +73,11 @@ export async function callPostMemoryApi(
 }
 
 export async function callDeleteMemoryApi(
-  memory_id: string,
+  memoryId: string,
 ): Promise<ApiResponse<DeleteMemoryResponseBodyData>> {
   const request: DeleteApiRequest<DeleteMemoryRequestPayload> = {
     method: 'DELETE',
-    path: `memories/${memory_id}`,
+    path: `memories/${memoryId}`,
     withAuth: true,
     query: {},
   };
@@ -92,24 +88,20 @@ export async function callDeleteMemoryApi(
 }
 
 export async function callPatchMemoryApi(
-  memory_id: string,
+  memoryId: string,
   updatedAt: string,
   props: {
     content: string | null;
-    isClip: boolean | null;
-    tags: string[] | null;
   },
 ): Promise<ApiResponse<PatchMemoryResponseBodyData>> {
   const payload: PatchMemoryRequestPayload = {
     content: props.content,
-    isClip: props.isClip,
-    tags: props.tags,
     updatedAt,
   };
 
   const request: PatchApiRequest<PatchMemoryRequestPayload> = {
     method: 'PATCH',
-    path: `memories/${memory_id}`,
+    path: `memories/${memoryId}`,
     withAuth: true,
     body: payload,
   };

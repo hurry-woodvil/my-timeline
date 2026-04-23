@@ -46,10 +46,10 @@ export default function RightContent() {
             ) : (
               query.data?.map((memory) => (
                 <MemoryCard
-                  key={memory.memory_id}
-                  memory_id={memory.memory_id}
+                  key={memory.id}
+                  memoryId={memory.id}
                   content={memory.content}
-                  created_at={memory.created_at}
+                  createdAt={memory.createdAt}
                 />
               ))
             )}

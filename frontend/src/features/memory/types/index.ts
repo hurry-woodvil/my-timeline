@@ -11,8 +11,6 @@ export type GetMemoryRequestPayload = {};
 export type GetMemoryResponseBodyData = {
   id: string;
   content: string;
-  isClip: boolean;
-  tags: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -20,8 +18,6 @@ export type GetMemoryResponseBodyData = {
 // POST /memories
 export type PostMemoryRequestPayload = {
   content: string;
-  isClip: boolean;
-  tags: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -29,8 +25,6 @@ export type PostMemoryRequestPayload = {
 export type PostMemoryResponseBodyData = {
   id: string;
   content: string;
-  isClip: boolean;
-  tags: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -45,24 +39,16 @@ export type DeleteMemoryResponseBodyData = {
 // PATCH /memories/{id}
 export type PatchMemoryRequestPayload = {
   content: string | null;
-  isClip: boolean | null;
-  tags: string[] | null;
   updatedAt: string;
 };
 
 export type PatchMemoryResponseBodyData = {
-  id: string;
   content?: string;
-  isClip?: boolean;
-  tags?: string[];
-  updatedAt: string;
 };
 
 export type Memory = {
   id: string;
   content: string;
-  isClip: boolean;
-  tags: string[];
   createdAt: string;
   updatedAt: string;
 };
